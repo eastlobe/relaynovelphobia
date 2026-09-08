@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>실시간 릴레이 소설</title>
+  <!-- PDF 변환 라이브러리 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -12,124 +14,447 @@
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #f4f6f8;
-      color: #333;
+      background-color: #121214;
+      color: #e1e1e6;
       display: flex;
       justify-content: center;
-      padding: 20px;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
     }
-    .container {
+
+    /* 시간 초과 시 붉은색 경고 점멸 애니메이션 */
+    @keyframes panicFlash {
+      0% { background-color: #121214; }
+      50% { background-color: #7f1d1d; }
+      100% { background-color: #121214; }
+    }
+    body.panic-alert {
+      animation: panicFlash 0.5s ease-in-out infinite;
+    }
+
+    .app-card {
       width: 100%;
-      max-width: 680px;
-      background: #fff;
+      max-width: 780px;
+      background: #202024;
+      border: 1px solid #323238;
       border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       display: flex;
       flex-direction: column;
-      height: 90vh;
+      height: 92vh;
       overflow: hidden;
+      position: relative;
     }
+
+    /* 상단 헤더 */
     header {
-      padding: 16px 20px;
-      background-color: #24292f;
-      color: #fff;
-      font-size: 1.1rem;
+      padding: 14px 20px;
+      background-color: #19191b;
+      border-bottom: 1px solid #323238;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      font-size: 1.15rem;
+      color: #04d361;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #323238;
+      color: #a8a8b3;
+    }
+
+    /* 로비 화면 */
+    #view-lobby {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    label {
+      font-size: 0.85rem;
+      color: #a8a8b3;
       font-weight: bold;
     }
-    #story-box {
+    input, select {
+      background: #121214;
+      border: 1px solid #323238;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: #04d361;
+    }
+    .create-box {
+      background: #29292e;
+      padding: 18px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+    .row > * {
+      flex: 1;
+    }
+    button.btn-primary {
+      background: #04d361;
+      color: #0a0a0c;
+      font-weight: bold;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button.btn-primary:hover {
+      background: #00b351;
+    }
+    button.btn-secondary {
+      background: #323238;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    button.btn-secondary:hover {
+      background: #41414d;
+    }
+    button.btn-danger {
+      background: #e54242;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button.btn-danger:hover {
+      background: #c53030;
+    }
+
+    .room-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .room-item {
+      background: #29292e;
+      padding: 14px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #323238;
+    }
+
+    /* 게임 룸 화면 */
+    #view-room {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 상단 참가자 상태 바 */
+    .status-bar {
+      padding: 10px 16px;
+      background: #19191b;
+      border-bottom: 1px solid #323238;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .player-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .player-chip {
+      background: #29292e;
+      border: 1px solid #323238;
+      padding: 4px 10px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+    .player-chip.active-turn {
+      border-color: #04d361;
+      background: #123d24;
+      font-weight: bold;
+      color: #04d361;
+    }
+    .penalty-tag {
+      color: #f75a68;
+      font-weight: bold;
+    }
+
+    /* 대기실 레디 영역 */
+    .waiting-panel {
+      padding: 14px 20px;
+      background: #29292e;
+      border-bottom: 1px solid #323238;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 소설 본문 영역 */
+    #story-scroll {
       flex: 1;
       padding: 20px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 12px;
+      background: #18181b;
     }
     .sentence-card {
-      background: #f9f9f9;
-      border-left: 4px solid #0969da;
+      background: #202024;
+      border-left: 4px solid #04d361;
       padding: 10px 14px;
       border-radius: 4px;
-      animation: fadeIn 0.3s ease-in-out;
+      border-top: 1px solid #29292e;
+      border-right: 1px solid #29292e;
+      border-bottom: 1px solid #29292e;
+    }
+    .sentence-card.system-msg {
+      border-left-color: #f75a68;
+      background: #2a1619;
+      color: #fba94c;
+      font-size: 0.85rem;
     }
     .sentence-header {
-      font-size: 0.8rem;
-      color: #666;
+      font-size: 0.75rem;
+      color: #8d8d99;
       margin-bottom: 4px;
       display: flex;
       justify-content: space-between;
     }
     .sentence-text {
-      font-size: 1rem;
-      line-height: 1.5;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #e1e1e6;
       word-break: break-word;
     }
-    #input-form {
+
+    /* 입력 영역 */
+    #input-zone {
+      padding: 14px 18px;
+      background: #19191b;
+      border-top: 1px solid #323238;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      padding: 16px 20px;
-      border-top: 1px solid #e1e4e8;
-      background: #fafbfc;
     }
-    .input-row {
-      display: flex;
-      gap: 8px;
-    }
-    #author-input {
-      width: 120px;
-      padding: 8px 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+    .timer-display {
       font-size: 0.9rem;
-    }
-    #text-input {
-      flex: 1;
-      padding: 8px 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 0.95rem;
-    }
-    button {
-      padding: 8px 16px;
-      background-color: #2ea44f;
-      color: white;
-      border: none;
-      border-radius: 6px;
       font-weight: bold;
-      cursor: pointer;
-      align-self: flex-end;
+      color: #fba94c;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    button:hover {
-      background-color: #2c974b;
+
+    /* 소설 완결 모달 */
+    .modal-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 50;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
+    .modal-card {
+      background: #202024;
+      border: 1px solid #323238;
+      border-radius: 10px;
+      padding: 24px;
+      width: 100%;
+      max-width: 580px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    #final-novel-text {
+      background: #121214;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-y: auto;
+      max-height: 50vh;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #e1e1e6;
+      white-space: pre-wrap;
+    }
+
+    /* 경고 연출 오버레이 */
+    #warning-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(180, 20, 20, 0.4);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 40;
+      pointer-events: none;
+    }
+    #warning-overlay svg {
+      width: 120px;
+      height: 120px;
+      fill: #ff3333;
+      filter: drop-shadow(0 0 15px rgba(255,0,0,0.8));
+    }
+    #warning-overlay p {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #fff;
+      margin-top: 12px;
+      text-shadow: 0 0 10px #ff0000;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <header>📖 실시간 릴레이 소설</header>
-    <div id="story-box">
-      <!-- 작성된 문장들이 실시간으로 추가됩니다 -->
-    </div>
-    <form id="input-form">
-      <div class="input-row">
-        <input type="text" id="author-input" placeholder="작성자 닉네임" required maxlength="12">
-        <input type="text" id="text-input" placeholder="이어갈 다음 문장을 입력하세요..." required autocomplete="off">
-      </div>
-      <button type="submit">이어쓰기 등록</button>
-    </form>
+  <!-- 시간 초과 시 깜빡이는 경고 오버레이 -->
+  <div id="warning-overlay">
+    <svg viewBox="0 0 24 24">
+      <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+    </svg>
+    <p>시간 초과! 경고 누적!</p>
   </div>
 
-  <!-- Firebase SDK 모듈 로드 -->
+  <div class="app-card">
+    <header>
+      <h1>릴레이 소설 Studio</h1>
+      <span id="header-user" class="badge">설정 필요</span>
+    </header>
+
+    <!-- [뷰 1: 로비 화면] -->
+    <div id="view-lobby">
+      <div class="form-group">
+        <label>작성자 닉네임</label>
+        <input type="text" id="my-nickname" placeholder="닉네임을 입력하세요" maxlength="10">
+      </div>
+
+      <div class="create-box">
+        <label>새 방 만들기</label>
+        <input type="text" id="new-room-title" placeholder="방 제목">
+        <div class="row">
+          <div>
+            <label>진행 모드</label>
+            <select id="new-room-mode">
+              <option value="infinite">무한 모드 (제한시간 없음)</option>
+              <option value="timed">시간제한 모드</option>
+            </select>
+          </div>
+          <div id="time-limit-group" style="display: none;">
+            <label>제한 시간</label>
+            <select id="new-room-seconds">
+              <option value="15">15초</option>
+              <option value="30" selected>30초</option>
+              <option value="60">60초</option>
+            </select>
+          </div>
+        </div>
+        <button id="btn-create-room" class="btn-primary">방 개설하고 입장</button>
+      </div>
+
+      <div class="form-group" style="flex: 1;">
+        <label>참여 가능한 방 목록</label>
+        <div id="room-list-box" class="room-list">
+          <p style="color: #666; font-size: 0.85rem;">개설된 방이 없습니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- [뷰 2: 게임 룸 화면] -->
+    <div id="view-room">
+      <div class="status-bar">
+        <div>
+          <strong id="room-display-title">방 제목</strong>
+          <span id="room-display-mode" class="badge" style="margin-left: 6px;">모드</span>
+        </div>
+        <div class="player-chips" id="players-box"></div>
+      </div>
+
+      <!-- 대기실 상태 바 (준비/시작) -->
+      <div id="waiting-bar" class="waiting-panel">
+        <div id="ready-status-text" style="font-size: 0.85rem; color: #a8a8b3;">모든 참가자가 준비 완료하면 시작할 수 있습니다.</div>
+        <div style="display:flex; gap: 8px;">
+          <button id="btn-toggle-ready" class="btn-primary">레디 (Ready)</button>
+          <button id="btn-leave-room" class="btn-secondary">나가기</button>
+        </div>
+      </div>
+
+      <!-- 소설 본문 목록 -->
+      <div id="story-scroll"></div>
+
+      <!-- 진행 및 입력 영역 -->
+      <div id="input-zone">
+        <div class="timer-display">
+          <span id="turn-indicator">대기 중...</span>
+          <span id="timer-count"></span>
+          <button id="btn-finish-vote" class="btn-secondary" style="font-size: 0.75rem;">소설 완결 투표 (0/0)</button>
+        </div>
+        <form id="story-form" class="row">
+          <input type="text" id="story-input" placeholder="차례가 되면 다음 문장을 이어 써주세요..." autocomplete="off" disabled>
+          <button type="submit" id="btn-send-story" class="btn-primary" style="flex: 0 0 100px;" disabled>등록</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 완결 모달 -->
+    <div id="modal-finish" class="modal-overlay">
+      <div class="modal-card">
+        <h2 style="color: #04d361; font-size: 1.2rem;">소설이 완결되었습니다!</h2>
+        <div id="final-novel-text"></div>
+        <div style="display:flex; gap: 8px; justify-content: flex-end;">
+          <button id="btn-download-pdf" class="btn-primary">PDF로 소설 다운로드</button>
+          <button id="btn-close-modal" class="btn-secondary">방 나가기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+    import { 
+      getDatabase, ref, set, push, onValue, update, get, serverTimestamp, onDisconnect 
+    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
-    // ⚠ Firebase 콘솔에서 발급받은 실제 키 값들로 변경해야 합니다.
+    // 전달해주신 Firebase 설정 정보 반영
     const firebaseConfig = {
       apiKey: "AIzaSyBsvhq6Y1KzvUJ9gUlF6_QEgYoj-FzuZMU",
       authDomain: "relaynovelphobia.firebaseapp.com",
@@ -137,68 +462,499 @@
       projectId: "relaynovelphobia",
       storageBucket: "relaynovelphobia.firebasestorage.app",
       messagingSenderId: "365170091282",
-      appId: "1:365170091282:web:6956889d54eea4070bbfcb"
+      appId: "1:365170091282:web:6956889d54eea4070bbfcb",
+      measurementId: "G-Q9LHNRX3T0"
     };
 
-    // Firebase 초기화
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const storyRef = ref(db, "relay_story");
 
-    const storyBox = document.getElementById("story-box");
-    const form = document.getElementById("input-form");
-    const authorInput = document.getElementById("author-input");
-    const textInput = document.getElementById("text-input");
+    // 사용자 고유 식별자 부여 및 저장
+    let myId = localStorage.getItem("novel_uid");
+    if (!myId) {
+      myId = "user_" + Math.random().toString(36).substring(2, 9);
+      localStorage.setItem("novel_uid", myId);
+    }
+    let myNick = localStorage.getItem("novel_nick") || "";
+    let currentRoomId = null;
+    let roomData = null;
+    let turnTimerInterval = null;
+    let warningTimeout = null;
 
-    // 저장된 닉네임이 있다면 불러오기
-    authorInput.value = localStorage.getItem("relay_author") || "";
+    // DOM 참조
+    const myNickInput = document.getElementById("my-nickname");
+    const headerUser = document.getElementById("header-user");
+    const viewLobby = document.getElementById("view-lobby");
+    const viewRoom = document.getElementById("view-room");
+    const newRoomMode = document.getElementById("new-room-mode");
+    const timeLimitGroup = document.getElementById("time-limit-group");
+    const roomListBox = document.getElementById("room-list-box");
+    const btnCreateRoom = document.getElementById("btn-create-room");
+    const newRoomTitle = document.getElementById("new-room-title");
+    const newRoomSeconds = document.getElementById("new-room-seconds");
 
-    // 실시간 데이터 수신 (새 문장이 DB에 등록되면 모든 기기에 자동 반영)
-    onChildAdded(storyRef, (snapshot) => {
-      const data = snapshot.val();
-      const card = document.createElement("div");
-      card.className = "sentence-card";
+    // 룸 내부 DOM
+    const roomDisplayTitle = document.getElementById("room-display-title");
+    const roomDisplayMode = document.getElementById("room-display-mode");
+    const playersBox = document.getElementById("players-box");
+    const waitingBar = document.getElementById("waiting-bar");
+    const btnToggleReady = document.getElementById("btn-toggle-ready");
+    const btnLeaveRoom = document.getElementById("btn-leave-room");
+    const storyScroll = document.getElementById("story-scroll");
+    const turnIndicator = document.getElementById("turn-indicator");
+    const timerCount = document.getElementById("timer-count");
+    const storyForm = document.getElementById("story-form");
+    const storyInput = document.getElementById("story-input");
+    const btnSendStory = document.getElementById("btn-send-story");
+    const btnFinishVote = document.getElementById("btn-finish-vote");
+    const modalFinish = document.getElementById("modal-finish");
+    const finalNovelText = document.getElementById("final-novel-text");
+    const btnDownloadPdf = document.getElementById("btn-download-pdf");
+    const btnCloseModal = document.getElementById("btn-close-modal");
+    const warningOverlay = document.getElementById("warning-overlay");
 
-      const dateText = data.timestamp ? new Date(data.timestamp).toLocaleTimeString() : "";
-
-      card.innerHTML = `
-        <div class="sentence-header">
-          <strong>${escapeHtml(data.author)}</strong>
-          <span>${dateText}</span>
-        </div>
-        <div class="sentence-text">${escapeHtml(data.text)}</div>
-      `;
-      storyBox.appendChild(card);
-      storyBox.scrollTop = storyBox.scrollHeight;
+    // 닉네임 초기화
+    if (myNick) {
+      myNickInput.value = myNick;
+      headerUser.textContent = myNick;
+    }
+    myNickInput.addEventListener("change", (e) => {
+      myNick = e.target.value.trim() || "익명";
+      localStorage.setItem("novel_nick", myNick);
+      headerUser.textContent = myNick;
+      if (currentRoomId) {
+        update(ref(db, `rooms/${currentRoomId}/players/${myId}`), { name: myNick });
+      }
     });
 
-    // 문장 제출 시 DB에 실시간 저장
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const author = authorInput.value.trim();
-      const text = textInput.value.trim();
+    newRoomMode.addEventListener("change", () => {
+      timeLimitGroup.style.display = newRoomMode.value === "timed" ? "block" : "none";
+    });
 
-      if (!author || !text) return;
-
-      localStorage.setItem("relay_author", author);
-
-      push(storyRef, {
-        author: author,
-        text: text,
-        timestamp: serverTimestamp()
-      }).then(() => {
-        textInput.value = "";
-        textInput.focus();
-      }).catch((err) => {
-        alert("저장에 실패했습니다: " + err.message);
+    // 1. 방 목록 실시간 감시
+    onValue(ref(db, "rooms"), (snapshot) => {
+      const rooms = snapshot.val();
+      roomListBox.innerHTML = "";
+      if (!rooms) {
+        roomListBox.innerHTML = `<p style="color: #666; font-size: 0.85rem;">개설된 방이 없습니다.</p>`;
+        return;
+      }
+      Object.keys(rooms).forEach((rId) => {
+        const r = rooms[rId];
+        const playerCount = r.players ? Object.keys(r.players).length : 0;
+        const item = document.createElement("div");
+        item.className = "room-item";
+        item.innerHTML = `
+          <div>
+            <strong>${escapeHtml(r.title)}</strong>
+            <div style="font-size: 0.8rem; color: #a8a8b3; margin-top: 4px;">
+              ${r.mode === "timed" ? `⏱️ 시간제한 (${r.timeLimit}초)` : "♾️ 무한모드"} | 참가자: ${playerCount}명 | 상태: ${r.status === "playing" ? "진행중" : "대기중"}
+            </div>
+          </div>
+          <button class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem;">입장</button>
+        `;
+        item.querySelector("button").addEventListener("click", () => joinRoom(rId));
+        roomListBox.appendChild(item);
       });
     });
 
-    // XSS 방지용 함수
-    function escapeHtml(string) {
-      const div = document.createElement("div");
-      div.innerText = string;
-      return div.innerHTML;
+    // 2. 새 방 생성
+    btnCreateRoom.addEventListener("click", () => {
+      const title = newRoomTitle.value.trim() || "릴레이 소설 방";
+      const mode = newRoomMode.value;
+      const timeLimit = parseInt(newRoomSeconds.value, 10);
+      myNick = myNickInput.value.trim() || "작가_" + myId.slice(-3);
+      localStorage.setItem("novel_nick", myNick);
+
+      const newRoomRef = push(ref(db, "rooms"));
+      const rId = newRoomRef.key;
+
+      const roomInit = {
+        title: title,
+        mode: mode,
+        timeLimit: mode === "timed" ? timeLimit : 0,
+        status: "waiting", // waiting | playing | finished
+        hostId: myId,
+        currentTurnIndex: 0,
+        playerOrder: [myId],
+        turnStartTime: 0,
+        finishVotes: {},
+        players: {
+          [myId]: {
+            name: myNick,
+            isReady: false,
+            penalties: 0
+          }
+        },
+        stories: {}
+      };
+
+      set(newRoomRef, roomInit).then(() => {
+        joinRoom(rId);
+      });
+    });
+
+    // 3. 방 입장
+    function joinRoom(rId) {
+      currentRoomId = rId;
+      myNick = myNickInput.value.trim() || "작가_" + myId.slice(-3);
+      localStorage.setItem("novel_nick", myNick);
+
+      // 참가자 등록
+      const playerRef = ref(db, `rooms/${rId}/players/${myId}`);
+      update(playerRef, {
+        name: myNick,
+        isReady: false,
+        penalties: 0
+      });
+
+      // 브라우저 닫거나 이탈 시 자동 제거
+      onDisconnect(playerRef).remove();
+
+      viewLobby.style.display = "none";
+      viewRoom.style.display = "flex";
+
+      listenToRoom(rId);
+    }
+
+    // 4. 방 데이터 동기화
+    let unsubscribeRoom = null;
+    function listenToRoom(rId) {
+      const roomRef = ref(db, `rooms/${rId}`);
+      onValue(roomRef, (snapshot) => {
+        roomData = snapshot.val();
+        if (!roomData) {
+          alert("방이 종료되었거나 존재하지 않습니다.");
+          leaveRoom();
+          return;
+        }
+
+        renderRoom();
+      });
+    }
+
+    // 5. 룸 렌더링 및 진행 로직
+    function renderRoom() {
+      roomDisplayTitle.textContent = roomData.title;
+      roomDisplayMode.textContent = roomData.mode === "timed" ? `시간제한 (${roomData.timeLimit}초)` : "무한모드";
+
+      const players = roomData.players || {};
+      const playerIds = Object.keys(players);
+
+      // 플레이어 순서 갱신 (호스트가 관리)
+      if (roomData.hostId === myId && roomData.status === "waiting") {
+        const currentOrder = roomData.playerOrder || [];
+        const isChanged = playerIds.length !== currentOrder.length || playerIds.some(id => !currentOrder.includes(id));
+        if (isChanged) {
+          update(ref(db, `rooms/${currentRoomId}`), { playerOrder: playerIds });
+        }
+      }
+
+      // 플레이어 칩 표시
+      playersBox.innerHTML = "";
+      const currentTurnId = (roomData.playerOrder && roomData.playerOrder.length > 0) 
+        ? roomData.playerOrder[roomData.currentTurnIndex % roomData.playerOrder.length] 
+        : null;
+
+      playerIds.forEach((pId) => {
+        const p = players[pId];
+        const chip = document.createElement("div");
+        chip.className = "player-chip";
+        if (roomData.status === "playing" && pId === currentTurnId) {
+          chip.classList.add("active-turn");
+        }
+        chip.innerHTML = `
+          <span>${escapeHtml(p.name)}</span>
+          ${roomData.status === "waiting" ? `<span style="color: ${p.isReady ? '#04d361' : '#888'};">(${p.isReady ? '준비' : '대기'})</span>` : ''}
+          ${p.penalties > 0 ? `<span class="penalty-tag">⚠️ ${p.penalties}</span>` : ''}
+        `;
+        playersBox.appendChild(chip);
+      });
+
+      // 레디 버튼 상태
+      const myState = players[myId];
+      if (myState) {
+        btnToggleReady.textContent = myState.isReady ? "준비 취소" : "레디 (Ready)";
+        btnToggleReady.style.background = myState.isReady ? "#e54242" : "#04d361";
+      }
+
+      // 대기/진행 UI 전환
+      if (roomData.status === "waiting") {
+        waitingBar.style.display = "flex";
+        turnIndicator.textContent = "모든 인원이 준비하면 시작됩니다.";
+        storyInput.disabled = true;
+        btnSendStory.disabled = true;
+        clearInterval(turnTimerInterval);
+        timerCount.textContent = "";
+
+        // 방장 권한으로 전원 레디 체크 후 자동 시작
+        if (roomData.hostId === myId && playerIds.length >= 1) {
+          const allReady = playerIds.every(id => players[id].isReady);
+          if (allReady) {
+            startNovelGame(playerIds);
+          }
+        }
+      } else if (roomData.status === "playing") {
+        waitingBar.style.display = "none";
+        renderStoryHistory();
+        setupTurnEngine(currentTurnId);
+      } else if (roomData.status === "finished") {
+        openFinishModal();
+      }
+
+      // 완결 투표 카운트 표시
+      const votes = roomData.finishVotes || {};
+      const voteCount = Object.values(votes).filter(v => v === true).length;
+      btnFinishVote.textContent = `소설 완결 투표 (${voteCount}/${playerIds.length})`;
+      btnFinishVote.style.background = votes[myId] ? "#04d361" : "#323238";
+    }
+
+    // 6. 게임 시작 로직
+    function startNovelGame(playerIds) {
+      update(ref(db, `rooms/${currentRoomId}`), {
+        status: "playing",
+        playerOrder: playerIds,
+        currentTurnIndex: 0,
+        turnStartTime: Date.now()
+      });
+    }
+
+    // 7. 차례 및 타이머 제어
+    function setupTurnEngine(currentTurnId) {
+      const isMyTurn = (currentTurnId === myId);
+
+      storyInput.disabled = !isMyTurn;
+      btnSendStory.disabled = !isMyTurn;
+
+      const currentWriterName = roomData.players[currentTurnId]?.name || "알 수 없음";
+
+      if (isMyTurn) {
+        turnIndicator.innerHTML = `<span style="color: #04d361; font-weight: bold;">[당신의 차례입니다!] 문장을 적어주세요.</span>`;
+      } else {
+        turnIndicator.textContent = `[${currentWriterName}] 님이 문장을 작성 중입니다...`;
+      }
+
+      clearInterval(turnTimerInterval);
+
+      if (roomData.mode === "timed" && roomData.status === "playing") {
+        const timeLimit = roomData.timeLimit;
+        const startTime = roomData.turnStartTime || Date.now();
+
+        const tick = () => {
+          const now = Date.now();
+          const elapsed = Math.floor((now - startTime) / 1000);
+          const remaining = timeLimit - elapsed;
+
+          if (remaining > 0) {
+            timerCount.textContent = `⏱️ 남은 시간: ${remaining}초`;
+          } else {
+            timerCount.textContent = `⏱️ 시간 종료!`;
+            clearInterval(turnTimerInterval);
+
+            // 턴 주인인 기기에서 시간 초과 처리 트리거
+            if (isMyTurn) {
+              handleTimeExpired();
+            }
+          }
+        };
+
+        tick();
+        turnTimerInterval = setInterval(tick, 1000);
+      } else {
+        timerCount.textContent = "";
+      }
+    }
+
+    // 8. 시간 초과 시 벌점 및 붉은 점멸 경고 처리
+    function handleTimeExpired() {
+      // 붉은 점멸 화면 및 오버레이 활성화
+      triggerWarningAlert();
+
+      // 벌점 부과 및 시스템 메시지 입력 후 다음 턴 넘기기
+      const currentPenalty = (roomData.players[myId]?.penalties || 0) + 1;
+
+      const nextTurnIndex = (roomData.currentTurnIndex + 1) % (roomData.playerOrder.length);
+      const updates = {};
+      updates[`rooms/${currentRoomId}/players/${myId}/penalties`] = currentPenalty;
+      updates[`rooms/${currentRoomId}/currentTurnIndex`] = nextTurnIndex;
+      updates[`rooms/${currentRoomId}/turnStartTime`] = Date.now();
+
+      // 시스템 타임아웃 기록
+      const storyRef = push(ref(db, `rooms/${currentRoomId}/stories`));
+      updates[`rooms/${currentRoomId}/stories/${storyRef.key}`] = {
+        author: "SYSTEM",
+        text: `🚨 [${myNick}] 님이 제한 시간을 초과하여 경고 1회(누적 ${currentPenalty}점)를 받고 차례가 넘어갔습니다.`,
+        isSystem: true,
+        timestamp: Date.now()
+      };
+
+      update(ref(db), updates);
+    }
+
+    // 경고 시각 연출
+    function triggerWarningAlert() {
+      document.body.classList.add("panic-alert");
+      warningOverlay.style.display = "flex";
+
+      if (warningTimeout) clearTimeout(warningTimeout);
+      warningTimeout = setTimeout(() => {
+        document.body.classList.remove("panic-alert");
+        warningOverlay.style.display = "none";
+      }, 3000);
+    }
+
+    // 9. 소설 본문 렌더링
+    function renderStoryHistory() {
+      storyScroll.innerHTML = "";
+      const stories = roomData.stories || {};
+
+      Object.values(stories).forEach((s) => {
+        const card = document.createElement("div");
+        card.className = "sentence-card";
+        if (s.isSystem) card.classList.add("system-msg");
+
+        const timeStr = s.timestamp ? new Date(s.timestamp).toLocaleTimeString() : "";
+        card.innerHTML = `
+          <div class="sentence-header">
+            <strong>${escapeHtml(s.author)}</strong>
+            <span>${timeStr}</span>
+          </div>
+          <div class="sentence-text">${escapeHtml(s.text)}</div>
+        `;
+        storyScroll.appendChild(card);
+      });
+      storyScroll.scrollTop = storyScroll.scrollHeight;
+    }
+
+    // 10. 문장 전송 제출
+    storyForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = storyInput.value.trim();
+      if (!text || roomData.status !== "playing") return;
+
+      const currentTurnId = roomData.playerOrder[roomData.currentTurnIndex % roomData.playerOrder.length];
+      if (currentTurnId !== myId) return;
+
+      const nextTurnIndex = (roomData.currentTurnIndex + 1) % (roomData.playerOrder.length);
+      const updates = {};
+
+      const storyRef = push(ref(db, `rooms/${currentRoomId}/stories`));
+      updates[`rooms/${currentRoomId}/stories/${storyRef.key}`] = {
+        author: myNick,
+        text: text,
+        isSystem: false,
+        timestamp: Date.now()
+      };
+
+      updates[`rooms/${currentRoomId}/currentTurnIndex`] = nextTurnIndex;
+      updates[`rooms/${currentRoomId}/turnStartTime`] = Date.now();
+
+      update(ref(db), updates).then(() => {
+        storyInput.value = "";
+      });
+    });
+
+    // 11. 레디 토글
+    btnToggleReady.addEventListener("click", () => {
+      if (!roomData) return;
+      const currentReady = roomData.players[myId]?.isReady || false;
+      update(ref(db, `rooms/${currentRoomId}/players/${myId}`), {
+        isReady: !currentReady
+      });
+    });
+
+    // 12. 소설 완결 동의 투표
+    btnFinishVote.addEventListener("click", () => {
+      if (!roomData || roomData.status !== "playing") return;
+      const currentVote = roomData.finishVotes?.[myId] || false;
+      const newVoteState = !currentVote;
+
+      const updates = {};
+      updates[`rooms/${currentRoomId}/finishVotes/${myId}`] = newVoteState;
+
+      // 만약 투표 결과 모든 참가자가 동의하면 상태를 finished로 전환
+      const players = roomData.players || {};
+      const playerIds = Object.keys(players);
+      const nextVotes = { ...(roomData.finishVotes || {}), [myId]: newVoteState };
+
+      const allAgree = playerIds.length > 0 && playerIds.every(id => nextVotes[id] === true);
+      if (allAgree) {
+        updates[`rooms/${currentRoomId}/status`] = "finished";
+      }
+
+      update(ref(db), updates);
+    });
+
+    // 13. 완결 모달 및 텍스트 구성
+    function openFinishModal() {
+      modalFinish.style.display = "flex";
+      clearInterval(turnTimerInterval);
+
+      const stories = roomData.stories || {};
+      const fullText = Object.values(stories)
+        .filter(s => !s.isSystem)
+        .map(s => s.text)
+        .join("\n\n");
+
+      finalNovelText.textContent = fullText || "작성된 문장이 없습니다.";
+    }
+
+    // 14. PDF 생성 및 다운로드 (html2pdf 활용)
+    btnDownloadPdf.addEventListener("click", () => {
+      const stories = roomData.stories || {};
+      const paragraphs = Object.values(stories)
+        .filter(s => !s.isSystem)
+        .map(s => `<p style="margin-bottom: 14px; line-height: 1.8; font-size: 11pt; color: #111;">${escapeHtml(s.text)}</p>`)
+        .join("");
+
+      const pdfContainer = document.createElement("div");
+      pdfContainer.style.padding = "30px";
+      pdfContainer.style.fontFamily = "'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+      pdfContainer.innerHTML = `
+        <h1 style="text-align: center; margin-bottom: 8px; font-size: 20pt; color: #111;">${escapeHtml(roomData.title)}</h1>
+        <div style="text-align: center; font-size: 9pt; color: #666; margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 12px;">
+          참여 작가: ${Object.values(roomData.players || {}).map(p => escapeHtml(p.name)).join(", ")}
+        </div>
+        <div>${paragraphs}</div>
+      `;
+
+      const opt = {
+        margin: [15, 15, 15, 15],
+        filename: `${roomData.title}_완결소설.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(pdfContainer).save();
+    });
+
+    // 15. 방 나가기
+    function leaveRoom() {
+      if (currentRoomId) {
+        set(ref(db, `rooms/${currentRoomId}/players/${myId}`), null);
+      }
+      clearInterval(turnTimerInterval);
+      currentRoomId = null;
+      roomData = null;
+      modalFinish.style.display = "none";
+      viewRoom.style.display = "none";
+      viewLobby.style.display = "flex";
+      document.body.classList.remove("panic-alert");
+      warningOverlay.style.display = "none";
+    }
+
+    btnLeaveRoom.addEventListener("click", leaveRoom);
+    btnCloseModal.addEventListener("click", leaveRoom);
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
   </script>
 </body>
