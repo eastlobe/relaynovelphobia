@@ -22,7 +22,6 @@
       padding: 16px;
     }
 
-    /* 공포 점멸 연출 */
     @keyframes terrorFlash {
       0% { background-color: #0f0f12; }
       50% { background-color: #7f1d1d; }
@@ -34,7 +33,7 @@
 
     .app-card {
       width: 100%;
-      max-width: 800px;
+      max-width: 760px;
       background: #1a1a1e;
       border: 1px solid #2e2e36;
       border-radius: 12px;
@@ -55,11 +54,11 @@
       align-items: center;
     }
     header h1 {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       color: #ff4757;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
     .badge {
       font-size: 0.75rem;
@@ -74,7 +73,6 @@
       font-weight: bold;
     }
 
-    /* 로비 */
     #view-lobby {
       flex: 1;
       padding: 24px;
@@ -91,19 +89,27 @@
     label {
       font-size: 0.85rem;
       color: #a8a8b3;
-      font-weight: bold;
+      font-weight: 600;
     }
     input, select {
       background: #121215;
       border: 1px solid #2e2e36;
       color: #fff;
-      padding: 10px 14px;
+      padding: 10px 12px;
       border-radius: 6px;
       font-size: 0.95rem;
       outline: none;
     }
     input:focus, select:focus {
       border-color: #ff4757;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
     .box-panel {
       background: #24242b;
@@ -125,12 +131,12 @@
     button {
       cursor: pointer;
       border-radius: 6px;
-      font-weight: bold;
+      font-weight: 600;
       border: none;
       transition: opacity 0.2s, background 0.2s;
     }
     button:disabled {
-      opacity: 0.4;
+      opacity: 0.35;
       cursor: not-allowed;
     }
     .btn-danger {
@@ -161,11 +167,11 @@
     .room-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
     .room-item {
       background: #24242b;
-      padding: 14px;
+      padding: 12px 16px;
       border-radius: 8px;
       display: flex;
       justify-content: space-between;
@@ -173,7 +179,6 @@
       border: 1px solid #2e2e36;
     }
 
-    /* 게임 룸 */
     #view-room {
       flex: 1;
       display: none;
@@ -181,7 +186,7 @@
       overflow: hidden;
     }
     .room-topbar {
-      padding: 12px 18px;
+      padding: 10px 16px;
       background: #141418;
       border-bottom: 1px solid #2e2e36;
       display: flex;
@@ -192,7 +197,7 @@
     }
     .players-list {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
     .player-pill {
@@ -216,23 +221,26 @@
       font-weight: bold;
     }
 
-    /* 대기실 제어 패널 */
     #waiting-control-panel {
-      padding: 14px 18px;
+      padding: 12px 16px;
       background: #1e1e24;
       border-bottom: 1px solid #2e2e36;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
     .host-settings-bar {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
       background: #141418;
-      padding: 10px;
+      padding: 8px 12px;
       border-radius: 6px;
       flex-wrap: wrap;
+    }
+    .host-settings-bar input[type="number"] {
+      width: 70px;
+      padding: 6px 8px;
     }
     .action-bar {
       display: flex;
@@ -240,20 +248,19 @@
       align-items: center;
     }
 
-    /* 소설 목록 */
     #story-scroll {
       flex: 1;
-      padding: 20px;
+      padding: 16px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       background: #121215;
     }
     .novel-card {
       background: #1e1e24;
-      border-left: 4px solid #ff4757;
-      padding: 12px 14px;
+      border-left: 3px solid #ff4757;
+      padding: 10px 14px;
       border-radius: 4px;
       border-top: 1px solid #2e2e36;
       border-right: 1px solid #2e2e36;
@@ -268,13 +275,12 @@
     .card-header {
       font-size: 0.75rem;
       color: #8d8d99;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       display: flex;
       justify-content: space-between;
     }
     .duration-stamp {
       color: #2ed573;
-      margin-left: 6px;
       font-weight: 500;
     }
     .card-content {
@@ -284,9 +290,8 @@
       word-break: break-word;
     }
 
-    /* 하단 입력바 */
     #bottom-dock {
-      padding: 14px 18px;
+      padding: 12px 16px;
       background: #141418;
       border-top: 1px solid #2e2e36;
       display: flex;
@@ -300,7 +305,6 @@
       align-items: center;
     }
 
-    /* 모달 */
     .modal-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -314,31 +318,30 @@
     .modal-content {
       background: #1a1a1e;
       border: 1px solid #2e2e36;
-      border-radius: 10px;
-      padding: 24px;
+      border-radius: 8px;
+      padding: 20px;
       width: 100%;
-      max-width: 600px;
+      max-width: 580px;
       max-height: 85vh;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
     }
     #final-novel-body {
       background: #121215;
-      padding: 16px;
+      padding: 14px;
       border-radius: 6px;
       overflow-y: auto;
-      max-height: 48vh;
+      max-height: 50vh;
       font-size: 0.95rem;
       line-height: 1.7;
       white-space: pre-wrap;
     }
 
-    /* 공포 경고 오버레이 */
     #panic-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(180, 0, 0, 0.4);
+      background: rgba(180, 0, 0, 0.45);
       display: none;
       flex-direction: column;
       justify-content: center;
@@ -347,15 +350,15 @@
       pointer-events: none;
     }
     #panic-overlay .emoji {
-      font-size: 5rem;
-      filter: drop-shadow(0 0 20px #ff0000);
+      font-size: 4.5rem;
+      filter: drop-shadow(0 0 15px #ff0000);
       animation: pulse 0.3s infinite alternate;
     }
     #panic-overlay h2 {
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       color: #fff;
       margin-top: 10px;
-      text-shadow: 0 0 10px #ff0000;
+      text-shadow: 0 0 8px #ff0000;
     }
     @keyframes pulse {
       from { transform: scale(1); }
@@ -365,7 +368,6 @@
 </head>
 <body>
 
-  <!-- 시간 초과 패닉 경고창 -->
   <div id="panic-overlay">
     <div class="emoji">😱</div>
     <h2>시간 초과! 경고 1회 적립!</h2>
@@ -381,44 +383,34 @@
     <div id="view-lobby">
       <div class="form-group">
         <label>작가 닉네임</label>
-        <input type="text" id="input-nickname" placeholder="닉네임을 입력해주세요" maxlength="10">
+        <input type="text" id="input-nickname" placeholder="닉네임 입력" maxlength="10">
       </div>
 
       <div class="box-panel">
-        <label>새 방 개설</label>
-        <input type="text" id="create-room-title" placeholder="방 제목을 입력하세요">
+        <label>방 만들기</label>
+        <input type="text" id="create-room-title" placeholder="방 제목 입력">
         <div class="row">
           <div>
-            <label>진행 모드</label>
+            <label>모드</label>
             <select id="create-room-mode">
-              <option value="infinite">무한 모드 (작성 소요시간 기록)</option>
-              <option value="timed">시간제한 모드 (턴/전체 시간제한)</option>
+              <option value="infinite">무한 모드</option>
+              <option value="timed">시간제한 모드</option>
             </select>
           </div>
           <div id="create-turn-limit-box" style="display: none;">
-            <label>턴당 제한시간</label>
-            <select id="create-turn-seconds">
-              <option value="15">15초</option>
-              <option value="30" selected>30초</option>
-              <option value="60">60초</option>
-              <option value="90">90초</option>
-            </select>
+            <label>턴 제한시간 (초)</label>
+            <input type="number" id="create-turn-seconds" value="30" min="5" max="300">
           </div>
           <div id="create-total-limit-box" style="display: none;">
-            <label>강제 완결 총 시간</label>
-            <select id="create-total-minutes">
-              <option value="3">3분</option>
-              <option value="5" selected>5분</option>
-              <option value="10">10분</option>
-              <option value="20">20분</option>
-            </select>
+            <label>전체 제한시간 (분)</label>
+            <input type="number" id="create-total-minutes" value="5" min="1" max="120">
           </div>
         </div>
-        <button id="btn-create-room" class="btn-danger">방 만들기 및 입장</button>
+        <button id="btn-create-room" class="btn-danger">방 개설</button>
       </div>
 
       <div class="form-group" style="flex:1;">
-        <label>진행 중 / 대기 중인 방 목록</label>
+        <label>방 목록</label>
         <div id="room-list" class="room-list">
           <p style="color: #666; font-size: 0.85rem;">개설된 방이 없습니다.</p>
         </div>
@@ -435,52 +427,44 @@
         <div class="players-list" id="room-players-list"></div>
       </div>
 
-      <!-- 대기실 방장/참가자 컨트롤러 -->
+      <!-- 대기실 영역 -->
       <div id="waiting-control-panel">
         <div id="host-settings-area" class="host-settings-bar" style="display: none;">
-          <span class="badge badge-host">👑 방장 설정 변경</span>
+          <span class="badge badge-host">방장</span>
           <select id="live-mode-select">
             <option value="infinite">무한 모드</option>
             <option value="timed">시간제한 모드</option>
           </select>
-          <div id="live-timed-options" style="display: flex; gap: 8px;">
-            <select id="live-turn-select">
-              <option value="15">턴: 15초</option>
-              <option value="30">턴: 30초</option>
-              <option value="60">턴: 60초</option>
-              <option value="90">턴: 90초</option>
-            </select>
-            <select id="live-total-select">
-              <option value="3">완결: 3분</option>
-              <option value="5">완결: 5분</option>
-              <option value="10">완결: 10분</option>
-              <option value="20">완결: 20분</option>
-            </select>
+          <div id="live-timed-options" style="display: flex; gap: 6px; align-items: center;">
+            <input type="number" id="live-turn-input" min="5" max="300" title="턴 제한시간(초)">
+            <span style="font-size:0.8rem; color:#888;">초</span>
+            <input type="number" id="live-total-input" min="1" max="120" title="전체 제한시간(분)">
+            <span style="font-size:0.8rem; color:#888;">분</span>
           </div>
         </div>
         <div class="action-bar">
-          <span id="waiting-info-text" style="font-size: 0.85rem; color: #a8a8b3;">모든 참가자가 레디하면 방장이 시작할 수 있습니다.</span>
+          <span id="waiting-info-text" style="font-size: 0.85rem; color: #a8a8b3;"></span>
           <div style="display: flex; gap: 8px;">
-            <button id="btn-ready-toggle" class="btn-primary">레디 (Ready)</button>
-            <button id="btn-host-start" class="btn-danger" style="display: none;" disabled>집필 시작</button>
-            <button id="btn-exit-room" class="btn-secondary">방 나가기</button>
+            <button id="btn-ready-toggle" class="btn-primary">레디</button>
+            <button id="btn-host-start" class="btn-danger" style="display: none;" disabled>시작</button>
+            <button id="btn-exit-room" class="btn-secondary">나가기</button>
           </div>
         </div>
       </div>
 
-      <!-- 소설 본문 목록 -->
+      <!-- 본문 목록 -->
       <div id="story-scroll"></div>
 
-      <!-- 하단 입력/상태 영역 -->
+      <!-- 하단 입력 독 -->
       <div id="bottom-dock">
         <div class="live-status-bar">
-          <span id="turn-message" style="font-weight: bold;">대기 중</span>
+          <span id="turn-message">대기 중</span>
           <span id="time-left-tag" style="color: #ff6b81; font-weight: bold;"></span>
-          <button id="btn-vote-finish" class="btn-secondary" style="font-size: 0.75rem;">완결 동의 (0/0)</button>
+          <button id="btn-vote-finish" class="btn-secondary" style="font-size: 0.75rem;">소설 완결 (0/0)</button>
         </div>
         <form id="novel-input-form" class="row">
-          <input type="text" id="novel-text-input" placeholder="차례를 기다리는 중..." autocomplete="off" disabled>
-          <button type="submit" id="btn-submit-sentence" class="btn-danger" style="flex: 0 0 100px;" disabled>등록</button>
+          <input type="text" id="novel-text-input" placeholder="문장을 입력하세요..." autocomplete="off" disabled>
+          <button type="submit" id="btn-submit-sentence" class="btn-danger" style="flex: 0 0 90px;" disabled>등록</button>
         </form>
       </div>
     </div>
@@ -488,11 +472,11 @@
     <!-- 완결 모달 -->
     <div id="modal-novel-end" class="modal-overlay">
       <div class="modal-content">
-        <h2 style="color: #2ed573; font-size: 1.2rem;">📖 소설이 완성되었습니다!</h2>
+        <h2 style="color: #2ed573; font-size: 1.15rem;">소설 완성</h2>
         <div id="final-novel-body"></div>
         <div style="display: flex; gap: 8px; justify-content: flex-end;">
           <button id="btn-save-pdf" class="btn-primary">PDF 다운로드</button>
-          <button id="btn-modal-exit" class="btn-secondary">로비로 나가기</button>
+          <button id="btn-modal-exit" class="btn-secondary">나가기</button>
         </div>
       </div>
     </div>
@@ -501,7 +485,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { 
-      getDatabase, ref, set, push, onValue, update, remove, onDisconnect, serverTimestamp
+      getDatabase, ref, set, push, onValue, update, remove, onDisconnect 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -518,7 +502,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // 고유 사용자 ID
     let myId = localStorage.getItem("rnp_uid");
     if (!myId) {
       myId = "user_" + Math.random().toString(36).substring(2, 9);
@@ -530,7 +513,6 @@
     let turnTimer = null;
     let panicTimeout = null;
 
-    // DOM 요소
     const labelUser = document.getElementById("label-user");
     const inputNickname = document.getElementById("input-nickname");
     const viewLobby = document.getElementById("view-lobby");
@@ -544,7 +526,6 @@
     const btnCreateRoom = document.getElementById("btn-create-room");
     const roomList = document.getElementById("room-list");
 
-    // 룸 내부 DOM
     const roomTitleLabel = document.getElementById("room-title-label");
     const roomModeTag = document.getElementById("room-mode-tag");
     const roomPlayersList = document.getElementById("room-players-list");
@@ -552,8 +533,8 @@
     const hostSettingsArea = document.getElementById("host-settings-area");
     const liveModeSelect = document.getElementById("live-mode-select");
     const liveTimedOptions = document.getElementById("live-timed-options");
-    const liveTurnSelect = document.getElementById("live-turn-select");
-    const liveTotalSelect = document.getElementById("live-total-select");
+    const liveTurnInput = document.getElementById("live-turn-input");
+    const liveTotalInput = document.getElementById("live-total-input");
     const waitingInfoText = document.getElementById("waiting-info-text");
     const btnReadyToggle = document.getElementById("btn-ready-toggle");
     const btnHostStart = document.getElementById("btn-host-start");
@@ -571,13 +552,12 @@
     const btnModalExit = document.getElementById("btn-modal-exit");
     const panicOverlay = document.getElementById("panic-overlay");
 
-    // 닉네임 설정
     if (myNick) {
       inputNickname.value = myNick;
       labelUser.textContent = myNick;
     }
     inputNickname.addEventListener("change", (e) => {
-      myNick = e.target.value.trim() || "익명작가";
+      myNick = e.target.value.trim() || "작가";
       localStorage.setItem("rnp_nick", myNick);
       labelUser.textContent = myNick;
       if (currentRoomId) {
@@ -585,14 +565,12 @@
       }
     });
 
-    // 로비 방 생성 옵션 토글
     createRoomMode.addEventListener("change", () => {
       const isTimed = createRoomMode.value === "timed";
       createTurnLimitBox.style.display = isTimed ? "block" : "none";
       createTotalLimitBox.style.display = isTimed ? "block" : "none";
     });
 
-    // 방 목록 실시간 감시
     onValue(ref(db, "rooms"), (snapshot) => {
       const rooms = snapshot.val();
       roomList.innerHTML = "";
@@ -604,7 +582,6 @@
         const r = rooms[rId];
         const pCount = r.players ? Object.keys(r.players).length : 0;
         
-        // 참가자가 0명이면 목록 제외 및 정리
         if (pCount === 0) {
           remove(ref(db, `rooms/${rId}`));
           return;
@@ -616,8 +593,7 @@
           <div>
             <strong>${escapeHtml(r.title)}</strong>
             <div style="font-size: 0.8rem; color: #a8a8b3; margin-top: 4px;">
-              ${r.mode === "timed" ? `⏱️ 시간제한 (턴 ${r.turnLimit}초 / 완결 ${r.totalLimit}분)` : "♾️ 무한모드 (소요시간 기록)"}
-              | 인원: ${pCount}명 | 상태: ${r.status === "playing" ? "집필중" : "대기중"}
+              ${r.mode === "timed" ? `시간제한 (${r.turnLimit}초 / ${r.totalLimit}분)` : "무한"} · ${pCount}명 · ${r.status === "playing" ? "진행중" : "대기"}
             </div>
           </div>
           <button class="btn-danger" style="padding: 6px 14px; font-size: 0.85rem;">입장</button>
@@ -627,12 +603,11 @@
       });
     });
 
-    // 방 생성
     btnCreateRoom.addEventListener("click", () => {
-      const title = createRoomTitle.value.trim() || "공포의 릴레이 소설";
+      const title = createRoomTitle.value.trim() || "릴레이 소설";
       const mode = createRoomMode.value;
-      const turnLimit = parseInt(createTurnSeconds.value, 10);
-      const totalLimit = parseInt(createTotalMinutes.value, 10);
+      const turnLimit = Math.max(5, parseInt(createTurnSeconds.value, 10) || 30);
+      const totalLimit = Math.max(1, parseInt(createTotalMinutes.value, 10) || 5);
       myNick = inputNickname.value.trim() || "작가_" + myId.slice(-3);
       localStorage.setItem("rnp_nick", myNick);
 
@@ -666,7 +641,6 @@
       });
     });
 
-    // 방 입장
     function joinRoom(rId) {
       currentRoomId = rId;
       myNick = inputNickname.value.trim() || "작가_" + myId.slice(-3);
@@ -680,7 +654,6 @@
         joinedAt: Date.now()
       });
 
-      // 창 종료/이탈 시 자동 제거 설정
       onDisconnect(playerRef).remove();
 
       viewLobby.style.display = "none";
@@ -689,15 +662,12 @@
       listenToRoom(rId);
     }
 
-    // 방 데이터 구독
     function listenToRoom(rId) {
       const roomRef = ref(db, `rooms/${rId}`);
       onValue(roomRef, (snapshot) => {
         roomData = snapshot.val();
         
-        // 방이 없거나 폭파된 경우
         if (!roomData) {
-          alert("방이 종료되었거나 참가자가 없어 삭제되었습니다.");
           cleanUpAndExit();
           return;
         }
@@ -705,14 +675,12 @@
         const players = roomData.players || {};
         const pIds = Object.keys(players);
 
-        // 1. 방에 남은 사람이 0명이면 방 자동 폭파
         if (pIds.length === 0) {
           remove(roomRef);
           cleanUpAndExit();
           return;
         }
 
-        // 2. 방장 결정 (가장 오래전에 들어온 사람: joinedAt 최소값)
         let determinedHostId = pIds[0];
         let oldestTime = players[determinedHostId].joinedAt || 0;
         pIds.forEach(id => {
@@ -722,7 +690,6 @@
           }
         });
 
-        // 방장 정보 갱신 동기화
         if (roomData.hostId !== determinedHostId && determinedHostId === myId) {
           update(roomRef, { hostId: determinedHostId });
         }
@@ -731,17 +698,15 @@
       });
     }
 
-    // 렌더링 및 진행 제어
     function renderRoomState(hostId, pIds) {
       const isHost = (myId === hostId);
       const players = roomData.players || {};
 
       roomTitleLabel.textContent = roomData.title;
       roomModeTag.textContent = roomData.mode === "timed" 
-        ? `시간제한 (턴 ${roomData.turnLimit}초 / 총 ${roomData.totalLimit}분)` 
+        ? `${roomData.turnLimit}초 / ${roomData.totalLimit}분` 
         : "무한 모드";
 
-      // 플레이어 칩 목록 출력
       roomPlayersList.innerHTML = "";
       const currentTurnId = (roomData.playerOrder && roomData.playerOrder.length > 0)
         ? roomData.playerOrder[roomData.currentTurnIndex % roomData.playerOrder.length]
@@ -758,13 +723,12 @@
         chip.innerHTML = `
           ${pId === hostId ? '<span class="badge badge-host" style="font-size:0.65rem;">방장</span>' : ''}
           <span>${escapeHtml(p.name)}</span>
-          ${roomData.status === "waiting" && pId !== hostId ? `<span style="color:${p.isReady ? '#2ed573' : '#888'};">(${p.isReady ? '준비' : '대기'})</span>` : ''}
-          ${p.penalties > 0 ? `<span class="penalty-indicator">⚠️ ${p.penalties}</span>` : ''}
+          ${roomData.status === "waiting" && pId !== hostId ? `<span style="color:${p.isReady ? '#2ed573' : '#666'};">${p.isReady ? '레디' : '대기'}</span>` : ''}
+          ${p.penalties > 0 ? `<span class="penalty-indicator">⚠️${p.penalties}</span>` : ''}
         `;
         roomPlayersList.appendChild(chip);
       });
 
-      // 대기실 패널 처리
       if (roomData.status === "waiting") {
         waitingControlPanel.style.display = "flex";
         storyScroll.style.display = "none";
@@ -772,35 +736,31 @@
         clearInterval(turnTimer);
         timeLeftTag.textContent = "";
 
-        // 방장 설정 패널 노출 여부
         if (isHost) {
           hostSettingsArea.style.display = "flex";
           liveModeSelect.value = roomData.mode;
           liveTimedOptions.style.display = roomData.mode === "timed" ? "flex" : "none";
-          liveTurnSelect.value = roomData.turnLimit;
-          liveTotalSelect.value = roomData.totalLimit;
+          
+          if (document.activeElement !== liveTurnInput) liveTurnInput.value = roomData.turnLimit;
+          if (document.activeElement !== liveTotalInput) liveTotalInput.value = roomData.totalLimit;
 
-          // 시작 버튼 노출, 레디 버튼 숨김
           btnHostStart.style.display = "inline-block";
           btnReadyToggle.style.display = "none";
 
-          // 모든 비-방장 참가자가 레디했는지 확인
           const nonHostIds = pIds.filter(id => id !== hostId);
           const allReady = nonHostIds.length === 0 || nonHostIds.every(id => players[id].isReady);
           
           btnHostStart.disabled = !allReady;
-          waitingInfoText.textContent = allReady 
-            ? "모든 참가자가 준비되었습니다! 시작 버튼을 눌러주세요." 
-            : "참가자들이 준비(Ready)를 완료하기를 기다리고 있습니다.";
+          waitingInfoText.textContent = allReady ? "시작 가능" : "참가자 레디 대기 중";
         } else {
           hostSettingsArea.style.display = "none";
           btnHostStart.style.display = "none";
           btnReadyToggle.style.display = "inline-block";
 
           const myReady = players[myId]?.isReady || false;
-          btnReadyToggle.textContent = myReady ? "준비 취소" : "레디 (Ready)";
+          btnReadyToggle.textContent = myReady ? "준비 완료" : "레디";
           btnReadyToggle.style.background = myReady ? "#ff4757" : "#2ed573";
-          waitingInfoText.textContent = myReady ? "방장이 집필을 시작하기를 기다리는 중..." : "준비가 끝나면 레디 버튼을 눌러주세요.";
+          waitingInfoText.textContent = myReady ? "방장 시작 대기 중" : "준비 후 레디를 눌러주세요";
         }
       } else if (roomData.status === "playing") {
         waitingControlPanel.style.display = "none";
@@ -812,35 +772,30 @@
         openFinishDialog();
       }
 
-      // 완결 투표 카운트 동기화
       const votes = roomData.finishVotes || {};
       const agreeCount = Object.values(votes).filter(v => v === true).length;
-      btnVoteFinish.textContent = `완결 동의 (${agreeCount}/${pIds.length})`;
+      btnVoteFinish.textContent = `소설 완결 (${agreeCount}/${pIds.length})`;
       btnVoteFinish.style.background = votes[myId] ? "#2ed573" : "#2e2e36";
     }
 
-    // 대기실 실시간 설정 변경 (방장 전용 이벤트)
     liveModeSelect.addEventListener("change", () => {
-      const mode = liveModeSelect.value;
-      update(ref(db, `rooms/${currentRoomId}`), { mode: mode });
+      update(ref(db, `rooms/${currentRoomId}`), { mode: liveModeSelect.value });
     });
-    liveTurnSelect.addEventListener("change", () => {
-      const limit = parseInt(liveTurnSelect.value, 10);
-      update(ref(db, `rooms/${currentRoomId}`), { turnLimit: limit });
+    liveTurnInput.addEventListener("change", () => {
+      const val = Math.max(5, parseInt(liveTurnInput.value, 10) || 30);
+      update(ref(db, `rooms/${currentRoomId}`), { turnLimit: val });
     });
-    liveTotalSelect.addEventListener("change", () => {
-      const total = parseInt(liveTotalSelect.value, 10);
-      update(ref(db, `rooms/${currentRoomId}`), { totalLimit: total });
+    liveTotalInput.addEventListener("change", () => {
+      const val = Math.max(1, parseInt(liveTotalInput.value, 10) || 5);
+      update(ref(db, `rooms/${currentRoomId}`), { totalLimit: val });
     });
 
-    // 레디 토글 (일반 참가자 전용)
     btnReadyToggle.addEventListener("click", () => {
       if (!roomData) return;
       const cur = roomData.players[myId]?.isReady || false;
       update(ref(db, `rooms/${currentRoomId}/players/${myId}`), { isReady: !cur });
     });
 
-    // 방장 시작 버튼 클릭
     btnHostStart.addEventListener("click", () => {
       const pIds = Object.keys(roomData.players || {});
       const now = Date.now();
@@ -853,7 +808,6 @@
       });
     });
 
-    // 턴 및 시간제한/소요시간 타이머 엔진
     function runTurnTimerLoop(currentTurnId, hostId) {
       const isMyTurn = (currentTurnId === myId);
       novelTextInput.disabled = !isMyTurn;
@@ -861,9 +815,9 @@
 
       const writerName = roomData.players[currentTurnId]?.name || "익명";
       if (isMyTurn) {
-        turnMessage.innerHTML = `<span style="color:#2ed573;">[내 차례] 문장을 이어 작성하세요!</span>`;
+        turnMessage.innerHTML = `<span style="color:#2ed573; font-weight:bold;">내 차례</span>`;
       } else {
-        turnMessage.textContent = `[${writerName}] 님이 문장을 쓰는 중...`;
+        turnMessage.textContent = `${writerName} 작성 중`;
       }
 
       clearInterval(turnTimer);
@@ -878,7 +832,6 @@
         const now = Date.now();
 
         if (mode === "timed") {
-          // 1. 전체 시간 소진에 따른 강제 완결 체크
           const totalElapsed = Math.floor((now - gameStart) / 1000);
           const totalRemaining = totalLimitSec - totalElapsed;
 
@@ -890,7 +843,6 @@
             return;
           }
 
-          // 2. 턴당 시간 체크
           const elapsed = Math.floor((now - turnStart) / 1000);
           const remaining = turnLimit - elapsed;
 
@@ -898,25 +850,23 @@
           const totalSec = totalRemaining % 60;
 
           if (remaining > 0) {
-            timeLeftTag.textContent = `⏱️ 턴: ${remaining}초 | 총 남은시간: ${totalMin}분 ${totalSec}초`;
+            timeLeftTag.textContent = `턴: ${remaining}초 | 전체: ${totalMin}분 ${totalSec}초`;
           } else {
-            timeLeftTag.textContent = `⏱️ 턴 시간 종료!`;
+            timeLeftTag.textContent = `턴 종료`;
             clearInterval(turnTimer);
             if (isMyTurn) {
               handlePanicTimeout();
             }
           }
         } else {
-          // 무한 모드: 현재 턴에 소요 중인 시간 카운트업
           const currentElapsed = Math.floor((now - turnStart) / 1000);
           const m = Math.floor(currentElapsed / 60);
           const s = currentElapsed % 60;
-          timeLeftTag.textContent = `⏳ 작성 경과 시간: ${m}분 ${s}초`;
+          timeLeftTag.textContent = `소요 시간: ${m > 0 ? m + '분 ' : ''}${s}초`;
         }
       }, 1000);
     }
 
-    // 시간 초과 패닉 & 벌점 처리
     function handlePanicTimeout() {
       triggerPanicUI();
 
@@ -931,7 +881,7 @@
       const storyRef = push(ref(db, `rooms/${currentRoomId}/stories`));
       updates[`rooms/${currentRoomId}/stories/${storyRef.key}`] = {
         author: "SYSTEM",
-        text: `😱 [${myNick}] 님이 제한 시간을 초과하여 공포의 경고 1회(누적 ${curPenalties}회)를 받았습니다. 차례가 강제 패스됩니다.`,
+        text: `😱 [${myNick}] 시간 초과! 경고 1회 적립 (누적 ${curPenalties}회)`,
         isSystem: true,
         timestamp: Date.now()
       };
@@ -939,21 +889,19 @@
       update(ref(db), updates);
     }
 
-    // 강제 완결 (시간 초과)
     function triggerForceFinishByTime() {
       const updates = {};
       updates[`rooms/${currentRoomId}/status`] = "finished";
       const storyRef = push(ref(db, `rooms/${currentRoomId}/stories`));
       updates[`rooms/${currentRoomId}/stories/${storyRef.key}`] = {
         author: "SYSTEM",
-        text: `⌛ 설정된 총 제한 시간이 모두 소진되어 소설이 강제 완결되었습니다!`,
+        text: `⌛ 제한 시간 종료로 소설이 완결되었습니다.`,
         isSystem: true,
         timestamp: Date.now()
       };
       update(ref(db), updates);
     }
 
-    // 패닉 시각 효과 연출
     function triggerPanicUI() {
       document.body.classList.add("panic-alert");
       panicOverlay.style.display = "flex";
@@ -965,7 +913,6 @@
       }, 3000);
     }
 
-    // 문장 제출
     novelInputForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const text = novelTextInput.value.trim();
@@ -1001,7 +948,6 @@
       });
     });
 
-    // 소설 목록 렌더링
     function renderStoryFeed() {
       storyScroll.innerHTML = "";
       const stories = roomData.stories || {};
@@ -1011,8 +957,8 @@
         card.className = "novel-card";
         if (s.isSystem) card.classList.add("sys-card");
 
-        const timeStr = s.timestamp ? new Date(s.timestamp).toLocaleTimeString() : "";
-        const durationTag = s.durationStr ? `<span class="duration-stamp">(소요 시간: ${s.durationStr})</span>` : "";
+        const timeStr = s.timestamp ? new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
+        const durationTag = s.durationStr ? `<span class="duration-stamp">(${s.durationStr})</span>` : "";
 
         card.innerHTML = `
           <div class="card-header">
@@ -1026,7 +972,6 @@
       storyScroll.scrollTop = storyScroll.scrollHeight;
     }
 
-    // 완결 투표
     btnVoteFinish.addEventListener("click", () => {
       if (!roomData || roomData.status !== "playing") return;
       const curVote = roomData.finishVotes?.[myId] || false;
@@ -1046,7 +991,6 @@
       update(ref(db), updates);
     });
 
-    // 완결 모달
     function openFinishDialog() {
       modalNovelEnd.style.display = "flex";
       clearInterval(turnTimer);
@@ -1063,13 +1007,12 @@
       finalNovelBody.textContent = fullText || "작성된 내용이 없습니다.";
     }
 
-    // PDF 다운로드
     btnSavePdf.addEventListener("click", () => {
       const stories = roomData.stories || {};
       const paragraphs = Object.values(stories)
         .filter(s => !s.isSystem)
         .map(s => {
-          const dur = s.durationStr ? ` <span style="font-size: 8pt; color: #888;">(${s.durationStr} 소요)</span>` : "";
+          const dur = s.durationStr ? ` <small style="color: #888;">(${s.durationStr})</small>` : "";
           return `<p style="margin-bottom: 14px; line-height: 1.8; font-size: 11pt; color: #111;">${escapeHtml(s.text)} <small style="color:#666;">- ${escapeHtml(s.author)}${dur}</small></p>`;
         })
         .join("");
@@ -1078,16 +1021,16 @@
       container.style.padding = "30px";
       container.style.fontFamily = "'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
       container.innerHTML = `
-        <h1 style="text-align: center; margin-bottom: 6px; font-size: 22pt; color: #111;">${escapeHtml(roomData.title)}</h1>
-        <p style="text-align: center; font-size: 10pt; color: #666; margin-bottom: 25px; border-bottom: 2px solid #333; padding-bottom: 10px;">
-          서비스: 릴레이소설공포증 😱 | 참여 작가: ${Object.values(roomData.players || {}).map(p => escapeHtml(p.name)).join(", ")}
+        <h1 style="text-align: center; margin-bottom: 6px; font-size: 20pt; color: #111;">${escapeHtml(roomData.title)}</h1>
+        <p style="text-align: center; font-size: 9pt; color: #666; margin-bottom: 25px; border-bottom: 2px solid #333; padding-bottom: 10px;">
+          작가: ${Object.values(roomData.players || {}).map(p => escapeHtml(p.name)).join(", ")}
         </p>
         <div>${paragraphs}</div>
       `;
 
       const opt = {
         margin: [15, 15, 15, 15],
-        filename: `${roomData.title}_완결작품.pdf`,
+        filename: `${roomData.title}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -1096,11 +1039,9 @@
       html2pdf().set(opt).from(container).save();
     });
 
-    // 방 나가기 및 클린업
     function leaveRoom() {
       if (currentRoomId) {
         remove(ref(db, `rooms/${currentRoomId}/players/${myId}`)).then(() => {
-          // 남은 사람 확인 후 0명이면 즉시 방 노드 삭제
           const pRef = ref(db, `rooms/${currentRoomId}/players`);
           onValue(pRef, (snap) => {
             if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
