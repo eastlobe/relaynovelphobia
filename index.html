@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>릴레이소설공포증 😱</title>
+
+  <!-- iOS 웹앱(PWA) 지원 메타 태그 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="소설공포증">
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <!-- OneSignal 웹 푸시 SDK -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -17,7 +23,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 12px;
+      padding: 10px;
     }
 
     @keyframes terrorFlash {
@@ -29,20 +35,20 @@
 
     .app-card {
       width: 100%;
-      max-width: 920px;
+      max-width: 900px;
       background: #1a1a1e;
       border: 1px solid #2e2e36;
       border-radius: 12px;
       box-shadow: 0 12px 40px rgba(0,0,0,0.7);
       display: flex;
       flex-direction: column;
-      height: 95vh;
+      height: 96vh;
       overflow: hidden;
       position: relative;
     }
 
     header {
-      padding: 12px 18px;
+      padding: 12px 16px;
       background-color: #121215;
       border-bottom: 1px solid #2e2e36;
       display: flex;
@@ -103,7 +109,7 @@
       display: none;
       flex-direction: column;
       overflow-y: auto;
-      padding: 18px;
+      padding: 16px;
     }
     .view-section.active { display: flex; }
 
@@ -122,10 +128,10 @@
     textarea { resize: vertical; min-height: 70px; }
     .box-panel {
       background: #24242b;
-      padding: 16px;
+      padding: 14px;
       border-radius: 8px;
       border: 1px solid #2e2e36;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .row { display: flex; gap: 8px; }
     .row > * { flex: 1; }
@@ -161,7 +167,7 @@
 
     #view-room { padding: 0; overflow: hidden; }
     .room-topbar {
-      padding: 10px 16px;
+      padding: 10px 14px;
       background: #141418;
       border-bottom: 1px solid #2e2e36;
       display: flex;
@@ -190,7 +196,7 @@
     .player-pill.spectator { opacity: 0.6; border-style: dashed; }
 
     #waiting-control-panel {
-      padding: 10px 16px;
+      padding: 10px 14px;
       background: #1e1e24;
       border-bottom: 1px solid #2e2e36;
       display: flex;
@@ -208,15 +214,17 @@
     }
     .host-settings-bar input[type="number"] { width: 60px; padding: 4px 6px; }
 
+    /* 소설 본문 전체 너비 영역 (채팅창 제거로 모바일 화면 최적화) */
     .game-body-area {
       flex: 1;
       display: flex;
+      flex-direction: column;
       overflow: hidden;
       position: relative;
     }
     #story-scroll {
       flex: 1;
-      padding: 16px;
+      padding: 14px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -227,7 +235,7 @@
       background: #1e1e24;
       border-left: 3px solid #ff4757;
       padding: 10px 14px;
-      border-radius: 4px;
+      border-radius: 6px;
       border: 1px solid #2e2e36;
       border-left-width: 3px;
     }
@@ -241,61 +249,62 @@
       justify-content: space-between;
     }
 
-    .side-chat-pane {
-      width: 250px;
-      background: #18181d;
-      border-left: 1px solid #2e2e36;
-      display: flex;
-      flex-direction: column;
-    }
-    .chat-messages {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-size: 0.8rem;
-    }
-    .chat-msg { background: #22222a; padding: 4px 8px; border-radius: 4px; }
-    .chat-msg strong { color: #2ed573; margin-right: 4px; }
-    .chat-input-row { display: flex; padding: 8px; gap: 4px; border-top: 1px solid #2e2e36; }
-
+    /* 리액션 바 */
     .reaction-bar {
       display: flex;
       gap: 6px;
-      padding: 6px 16px;
+      padding: 8px 14px;
       background: #141418;
       border-top: 1px solid #26262e;
       align-items: center;
+      overflow-x: auto;
     }
     .reaction-bar span { font-size: 0.75rem; color: #888; }
     .emoji-btn {
-      background: transparent;
-      border: none;
-      font-size: 1.2rem;
-      padding: 2px 4px;
+      background: #202028;
+      border: 1px solid #2e2e36;
+      border-radius: 8px;
+      font-size: 1.25rem;
+      padding: 4px 8px;
       cursor: pointer;
-      transition: transform 0.1s;
+      transition: transform 0.1s, background 0.15s;
     }
-    .emoji-btn:hover { transform: scale(1.3); }
+    .emoji-btn:hover { transform: scale(1.25); background: #2c2c38; }
 
-    .floating-emoji {
+    /* 몽글몽글 플로팅 리액션 애니메이션 */
+    .reaction-bubble {
       position: absolute;
-      bottom: 60px;
-      right: 270px;
-      font-size: 2rem;
+      bottom: 20px;
       pointer-events: none;
-      animation: floatUp 1.5s ease-out forwards;
-      z-index: 30;
+      font-size: 2.2rem;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+      animation: floatMongle 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      z-index: 40;
     }
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0) scale(0.8); }
-      100% { opacity: 0; transform: translateY(-120px) scale(1.5); }
+    @keyframes floatMongle {
+      0% {
+        opacity: 0;
+        transform: translateY(0) scale(0.4) rotate(0deg);
+      }
+      20% {
+        opacity: 1;
+        transform: translateY(-40px) scale(1.2) rotate(-8deg);
+      }
+      50% {
+        transform: translateY(-110px) scale(1) rotate(8deg);
+      }
+      80% {
+        opacity: 0.9;
+        transform: translateY(-180px) scale(0.95) rotate(-4deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-240px) scale(0.7) rotate(0deg);
+      }
     }
 
     #bottom-dock {
-      padding: 10px 16px;
+      padding: 10px 14px;
       background: #141418;
       border-top: 1px solid #2e2e36;
       display: flex;
@@ -312,16 +321,16 @@
     .library-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 14px;
+      gap: 12px;
     }
     .library-card {
       background: #24242b;
       border: 1px solid #2e2e36;
       border-radius: 8px;
-      padding: 16px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       cursor: pointer;
     }
     .library-card:hover { border-color: #2ed573; }
@@ -330,14 +339,14 @@
     .board-subtabs {
       display: flex;
       gap: 8px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       border-bottom: 1px solid #2e2e36;
       padding-bottom: 8px;
     }
     .board-subtab-btn {
       background: #24242b;
       color: #aaa;
-      padding: 6px 14px;
+      padding: 6px 12px;
       border-radius: 6px;
       border: 1px solid #333;
     }
@@ -351,7 +360,7 @@
       background: #24242b;
       border: 1px solid #2e2e36;
       border-radius: 8px;
-      padding: 12px 16px;
+      padding: 12px 14px;
       margin-bottom: 10px;
     }
     .board-header {
@@ -374,6 +383,30 @@
       font-size: 0.85rem;
     }
 
+    /* 댓글창 전용 UI (도서관 및 게시판 상세) */
+    .comments-wrapper {
+      margin-top: 14px;
+      background: #141418;
+      border: 1px solid #2e2e36;
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 160px;
+      overflow-y: auto;
+      margin-bottom: 8px;
+    }
+    .comment-item {
+      background: #1e1e24;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+    .comment-item strong { color: #2ed573; margin-right: 6px; }
+
     .modal-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -381,20 +414,21 @@
       display: none;
       justify-content: center;
       align-items: center;
-      padding: 20px;
+      padding: 16px;
       z-index: 60;
     }
     .modal-content {
       background: #1a1a1e;
       border: 1px solid #2e2e36;
       border-radius: 8px;
-      padding: 20px;
+      padding: 18px;
       width: 100%;
       max-width: 580px;
-      max-height: 85vh;
+      max-height: 88vh;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
+      overflow-y: auto;
     }
 
     #panic-overlay {
@@ -533,18 +567,12 @@
         </div>
       </div>
 
-      <div class="game-body-area">
+      <!-- 소설 집필 본문 화면 (모바일 가독성을 위해 전체 너비로 확장) -->
+      <div class="game-body-area" id="game-body-area">
         <div id="story-scroll"></div>
-        <div class="side-chat-pane">
-          <div style="padding:6px 10px; font-size:0.75rem; border-bottom:1px solid #2e2e36; color:#a8a8b3;">관전 댓글 및 반응</div>
-          <div class="chat-messages" id="chat-messages-box"></div>
-          <form id="chat-form" class="chat-input-row">
-            <input type="text" id="chat-input" placeholder="댓글 입력..." style="flex:1; padding:4px 8px; font-size:0.8rem;" autocomplete="off">
-            <button type="submit" class="btn-secondary" style="padding:4px 8px; font-size:0.75rem;">전송</button>
-          </form>
-        </div>
       </div>
 
+      <!-- 몽글몽글 실시간 리액션 바 -->
       <div class="reaction-bar">
         <span>리액션:</span>
         <button class="emoji-btn" data-emoji="😱">😱</button>
@@ -619,7 +647,6 @@
 
     <!-- [뷰 5: 작가 프로필 & 친구 관리] -->
     <div id="view-profile" class="view-section">
-      <!-- 프로필 상단 요약 -->
       <div class="box-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <h2 id="prof-display-name" style="font-size:1.2rem; color:#2ed573;">작가 프로필</h2>
@@ -632,7 +659,7 @@
         <button id="btn-save-profile" class="btn-primary" style="align-self:flex-start;">소개글 저장</button>
       </div>
 
-      <!-- 친구 검색창 (본인 프로필일 때 표시) -->
+      <!-- 친구 검색창 -->
       <div id="friend-search-panel" class="box-panel" style="display:none;">
         <h3 style="font-size:0.95rem; color:#fff; margin-bottom:8px;">작가 찾기 및 친구 신청 🔍</h3>
         <div style="display:flex; gap:6px;">
@@ -642,7 +669,7 @@
         <div id="search-results-list" style="margin-top:10px; display:flex; flex-direction:column; gap:6px;"></div>
       </div>
 
-      <!-- 받은 친구 요청 목록 (본인 프로필일 때 표시) -->
+      <!-- 받은 친구 요청 목록 -->
       <div id="friend-requests-panel" class="box-panel" style="display:none; border-color:#e67e22;">
         <h3 style="font-size:0.95rem; color:#f39c12; margin-bottom:10px;">받은 친구 요청 📬</h3>
         <div id="friend-requests-list">
@@ -650,7 +677,7 @@
         </div>
       </div>
 
-      <!-- 내 친구 목록 (본인 프로필일 때 표시) -->
+      <!-- 내 친구 목록 -->
       <div id="my-friends-panel" class="box-panel" style="display:none;">
         <h3 style="font-size:0.95rem; color:#fff; margin-bottom:10px;">내 친구 목록 👥</h3>
         <p style="font-size:0.75rem; color:#888; margin-bottom:10px;">서로 친구가 되면 새 방 개설 알림을 주고받습니다.</p>
@@ -659,7 +686,6 @@
         </div>
       </div>
 
-      <!-- 참여작 목록 -->
       <div class="box-panel">
         <h3 style="font-size:0.95rem; color:#fff; margin-bottom:10px;">참여하여 출판된 소설 작품</h3>
         <div id="prof-novel-list" class="room-list">
@@ -674,13 +700,36 @@
         <h2 style="color: #2ed573; font-size: 1.15rem;">소설 완성</h2>
         <div id="final-novel-body" style="background:#121215; padding:12px; border-radius:6px; max-height:40vh; overflow-y:auto; font-size:0.9rem; line-height:1.6; white-space:pre-wrap;"></div>
         <div style="background:#24242b; padding:10px; border-radius:6px; font-size:0.85rem;">
-          <strong>도서관 게시판 출판 투표 (전원 동의 필요):</strong>
+          <strong>도서관 게시판 출판 투표:</strong>
           <div id="publish-vote-status" style="margin-top:4px; color:#aaa;">찬성: 0명</div>
           <button id="btn-vote-publish" class="btn-primary" style="margin-top:6px; padding:4px 10px; font-size:0.8rem;">도서관 게시 찬성</button>
         </div>
         <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top:6px;">
           <button id="btn-save-pdf" class="btn-primary">PDF 다운로드</button>
           <button id="btn-modal-exit" class="btn-secondary">나가기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 도서관 소설 상세 모달 (도서관 전용 댓글 기능 포함) -->
+    <div id="modal-book-detail" class="modal-overlay">
+      <div class="modal-content">
+        <h2 id="book-modal-title" style="color: #2ed573; font-size: 1.15rem;"></h2>
+        <div id="book-modal-authors" style="font-size: 0.8rem; color: #888;"></div>
+        <div id="book-modal-body" style="background:#121215; padding:12px; border-radius:6px; max-height:45vh; overflow-y:auto; font-size:0.9rem; line-height:1.7; white-space:pre-wrap;"></div>
+        
+        <!-- 도서관 댓글 영역 -->
+        <div class="comments-wrapper">
+          <div style="font-size:0.8rem; color:#aaa; margin-bottom:6px;">독자 및 작가 감상평 (댓글)</div>
+          <div class="comments-list" id="book-comments-list"></div>
+          <form id="book-comment-form" style="display:flex; gap:6px;">
+            <input type="text" id="book-comment-input" placeholder="감상평을 남겨보세요..." style="flex:1; padding:6px 10px; font-size:0.8rem;" autocomplete="off">
+            <button type="submit" class="btn-primary" style="padding:6px 12px; font-size:0.8rem;">등록</button>
+          </form>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top:6px;">
+          <button id="btn-close-book-modal" class="btn-secondary">닫기</button>
         </div>
       </div>
     </div>
@@ -713,13 +762,13 @@
       </div>
     </div>
 
-    <!-- 알림 유도 팝업 모달 -->
+    <!-- 일반 알림 유도 팝업 모달 -->
     <div id="modal-push-prompt" class="modal-overlay">
       <div class="modal-content" style="max-width:420px; text-align:center;">
         <div style="font-size:3rem; margin-bottom:8px;">🔔</div>
         <h2 style="color:#fff; font-size:1.15rem;">친구의 집필 및 신청 소식을 놓치지 마세요!</h2>
         <p style="font-size:0.85rem; color:#aaa; line-height:1.6; margin-top:8px;">
-          웹 푸시 알림을 켜두시면 <strong>친구가 새 방을 열었을 때</strong>뿐만 아니라 <strong>친구 신청이나 수락 소식</strong>도 실시간으로 바로 알려드립니다!
+          웹 푸시 알림을 켜두시면 <strong>친구가 새 방을 열었을 때</strong>뿐만 아니라 <strong>친구 신청/수락 소식</strong>도 실시간으로 바로 알려드립니다!
         </p>
         <div style="display:flex; gap:8px; margin-top:14px;">
           <button id="btn-enable-push" class="btn-primary" style="flex:1;">알림 켜기</button>
@@ -727,6 +776,26 @@
         </div>
         <label style="display:flex; justify-content:center; align-items:center; gap:6px; font-size:0.75rem; color:#777; margin-top:8px; cursor:pointer;">
           <input type="checkbox" id="chk-never-show-push"> 다시 보지 않기
+        </label>
+      </div>
+    </div>
+
+    <!-- iOS 전용 홈 화면 추가 안내 모달 -->
+    <div id="modal-ios-pwa-prompt" class="modal-overlay">
+      <div class="modal-content" style="max-width:420px; text-align:center;">
+        <div style="font-size:3rem; margin-bottom:8px;">📲</div>
+        <h2 style="color:#fff; font-size:1.15rem;">아이폰 알림 받기 설정 안내</h2>
+        <p style="font-size:0.85rem; color:#aaa; line-height:1.6; margin-top:8px;">
+          아이폰(iOS) 정책상 웹 푸시 알림을 받으려면 먼저 <strong>홈 화면에 앱을 추가</strong>해야 합니다.
+        </p>
+        <div style="background:#24242b; border:1px solid #333; padding:12px; border-radius:8px; text-align:left; font-size:0.8rem; color:#eee; margin-top:10px; line-height:1.8;">
+          1. 사파리 하단의 <strong>공유 버튼 (네모에 화살표 ↑)</strong> 클릭<br>
+          2. 메뉴에서 <strong>[홈 화면에 추가]</strong> 선택<br>
+          3. 홈 화면에 생긴 <strong>앱 아이콘으로 다시 접속</strong>하면 알림 설정이 가능합니다.
+        </div>
+        <button id="btn-dismiss-ios-pwa" class="btn-primary" style="width:100%; margin-top:14px;">확인했습니다</button>
+        <label style="display:flex; justify-content:center; align-items:center; gap:6px; font-size:0.75rem; color:#777; margin-top:8px; cursor:pointer;">
+          <input type="checkbox" id="chk-never-show-ios"> 다시 보지 않기
         </label>
       </div>
     </div>
@@ -739,8 +808,6 @@
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
     const ONESIGNAL_APP_ID = "1f8e25e9-5dbc-4bd5-b63c-82c43571ced2";
-
-    // ⚠️ 사용자분의 Cloudflare Worker URL
     const PUSH_PROXY_URL = "https://summer-leaf-7fe3.dyeric031001.workers.dev";
 
     const firebaseConfig = {
@@ -778,6 +845,7 @@
     let botExecutionTimeout = null;
     let isIdVerified = false;
     let viewingProfileUid = null;
+    let currentViewingBookId = null;
 
     const navTabs = {
       lobby: document.getElementById("tab-btn-lobby"),
@@ -826,6 +894,7 @@
     const btnReadyToggle = document.getElementById("btn-ready-toggle");
     const btnHostStart = document.getElementById("btn-host-start");
     const btnExitRoom = document.getElementById("btn-exit-room");
+    const gameBodyArea = document.getElementById("game-body-area");
     const storyScroll = document.getElementById("story-scroll");
     const turnMessage = document.getElementById("turn-message");
     const timeLeftTag = document.getElementById("time-left-tag");
@@ -835,9 +904,6 @@
     const btnSubmitSentence = document.getElementById("btn-submit-sentence");
     const btnGiveUp = document.getElementById("btn-give-up");
     const btnInterruptJoin = document.getElementById("btn-interrupt-join");
-    const chatMessagesBox = document.getElementById("chat-messages-box");
-    const chatForm = document.getElementById("chat-form");
-    const chatInput = document.getElementById("chat-input");
 
     const subtabNotice = document.getElementById("subtab-notice");
     const subtabFeedback = document.getElementById("subtab-feedback");
@@ -854,6 +920,15 @@
     const feedbackListContainer = document.getElementById("feedback-list-container");
 
     const libraryContainer = document.getElementById("library-container");
+    const modalBookDetail = document.getElementById("modal-book-detail");
+    const bookModalTitle = document.getElementById("book-modal-title");
+    const bookModalAuthors = document.getElementById("book-modal-authors");
+    const bookModalBody = document.getElementById("book-modal-body");
+    const bookCommentsList = document.getElementById("book-comments-list");
+    const bookCommentForm = document.getElementById("book-comment-form");
+    const bookCommentInput = document.getElementById("book-comment-input");
+    const btnCloseBookModal = document.getElementById("btn-close-book-modal");
+
     const profDisplayName = document.getElementById("prof-display-name");
     const profBioInput = document.getElementById("prof-bio-input");
     const btnSaveProfile = document.getElementById("btn-save-profile");
@@ -894,7 +969,11 @@
     const btnDismissPush = document.getElementById("btn-dismiss-push");
     const chkNeverShowPush = document.getElementById("chk-never-show-push");
 
-    // OneSignal 초기화
+    const modalIosPwaPrompt = document.getElementById("modal-ios-pwa-prompt");
+    const btnDismissIosPwa = document.getElementById("btn-dismiss-ios-pwa");
+    const chkNeverShowIos = document.getElementById("chk-never-show-ios");
+
+    // OneSignal 및 기기별 알림 팝업 초기화
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal) {
       await OneSignal.init({
@@ -911,15 +990,41 @@
       checkAndShowPushPrompt(OneSignal);
     });
 
+    // iOS 감지 및 환경별 팝업 노출 로직
     async function checkAndShowPushPrompt(OneSignal) {
       const isNeverShow = localStorage.getItem("rnp_never_show_push") === "true";
+      const isNeverShowIos = localStorage.getItem("rnp_never_show_ios") === "true";
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+      // 1) 아이폰 사파리 일반 탭 접속 -> iOS 홈 화면 추가 안내 모달 무조건 팝업
+      if (isIOS && !isStandalone) {
+        if (!isNeverShowIos) {
+          setTimeout(() => {
+            modalIosPwaPrompt.style.display = "flex";
+          }, 800);
+        }
+        return;
+      }
+
+      // 2) PC, 안드로이드, 또는 홈화면 PWA로 진입한 아이폰 -> 알림 켜기 팝업
       if (isNeverShow) return;
 
-      const isPushEnabled = await OneSignal.User.PushSubscription.optedIn;
-      if (!isPushEnabled) {
+      try {
+        let isPushEnabled = false;
+        if (OneSignal?.User?.PushSubscription) {
+          isPushEnabled = await OneSignal.User.PushSubscription.optedIn;
+        }
+        if (!isPushEnabled) {
+          setTimeout(() => {
+            modalPushPrompt.style.display = "flex";
+          }, 1000);
+        }
+      } catch (e) {
         setTimeout(() => {
           modalPushPrompt.style.display = "flex";
-        }, 1200);
+        }, 1000);
       }
     }
 
@@ -940,7 +1045,14 @@
       modalPushPrompt.style.display = "none";
     });
 
-    // 범용 웹 푸시 알림 발송 함수 (Cloudflare Worker 프록시 경유)
+    btnDismissIosPwa.addEventListener("click", () => {
+      if (chkNeverShowIos.checked) {
+        localStorage.setItem("rnp_never_show_ios", "true");
+      }
+      modalIosPwaPrompt.style.display = "none";
+    });
+
+    // Cloudflare Worker 중계를 통한 푸시 알림 발송
     async function sendPushNotification(targetIds, title, message) {
       if (!targetIds || targetIds.length === 0) return;
       try {
@@ -1136,13 +1248,12 @@
           }
         },
         stories: {},
-        chats: {}
+        reactions: {}
       };
 
       await set(newRef, newRoom);
       createRoomPassword.value = "";
 
-      // 친구들에게만 방 개설 푸시 알림 발송
       const fSnap = await get(ref(db, `users/${currentUser.id}/friends`));
       if (fSnap.exists()) {
         const friendIds = Object.keys(fSnap.val() || {});
@@ -1367,7 +1478,6 @@
         }
 
         renderStoryFeed();
-        renderChatFeed();
         runTurnTimerLoop(currentTurnId, hostId);
 
         if (players[currentTurnId]?.isBot && isHost) {
@@ -1525,10 +1635,14 @@
       }
     });
 
+    // ───────────────────────────────────────────────
+    // 몽글몽글 실시간 플로팅 리액션 연출
+    // ───────────────────────────────────────────────
     document.querySelectorAll(".emoji-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         if (!currentRoomId) return;
-        push(ref(db, `rooms/${currentRoomId}/reactions`), { emoji: btn.dataset.emoji, uid: currentUser.id, time: Date.now() });
+        const emoji = btn.dataset.emoji;
+        push(ref(db, `rooms/${currentRoomId}/reactions`), { emoji: emoji, uid: currentUser.id, time: Date.now() });
       });
     });
 
@@ -1539,44 +1653,31 @@
       const latest = rList[rList.length - 1];
       if (latest && latest.time > lastReactionTime) {
         lastReactionTime = latest.time;
-        showFloatingEmoji(latest.emoji);
+        // 몽글몽글 여러 개 솟아오르는 이모지 연출
+        spawnMongleBubbles(latest.emoji);
       }
     });
 
-    function showFloatingEmoji(emoji) {
-      const el = document.createElement("div");
-      el.className = "floating-emoji";
-      el.textContent = emoji;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 1500);
+    function spawnMongleBubbles(emoji) {
+      const bubbleCount = 4;
+      for (let i = 0; i < bubbleCount; i++) {
+        setTimeout(() => {
+          const el = document.createElement("div");
+          el.className = "reaction-bubble";
+          el.textContent = emoji;
+
+          // 랜덤 수평 위치 및 딜레이로 몽글몽글 분산 효과
+          const randomX = Math.floor(Math.random() * 60) + 20; // 20% ~ 80% 폭
+          el.style.left = `${randomX}%`;
+          el.style.animationDuration = `${1.8 + Math.random() * 0.6}s`;
+
+          gameBodyArea.appendChild(el);
+          setTimeout(() => el.remove(), 2500);
+        }, i * 180);
+      }
     }
 
-    chatForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const txt = chatInput.value.trim();
-      if (!txt || !currentRoomId) return;
-      push(ref(db, `rooms/${currentRoomId}/chats`), {
-        name: currentUser.nickname,
-        isAdmin: (currentUser.id === ADMIN_UID),
-        text: txt,
-        time: Date.now()
-      });
-      chatInput.value = "";
-    });
-
-    function renderChatFeed() {
-      chatMessagesBox.innerHTML = "";
-      const chats = roomData.chats || {};
-      Object.values(chats).forEach(c => {
-        const div = document.createElement("div");
-        div.className = "chat-msg";
-        const adminTag = c.isAdmin ? `<span class="badge badge-admin" style="font-size:0.6rem; margin-right:4px;">관리자</span>` : "";
-        div.innerHTML = `${adminTag}<strong>${escapeHtml(c.name)}:</strong>${escapeHtml(c.text)}`;
-        chatMessagesBox.appendChild(div);
-      });
-      chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight;
-    }
-
+    // AI 실시간 작문
     function scheduleLiveLlmBotTurn(botId) {
       clearTimeout(botExecutionTimeout);
       const bot = roomData.players[botId];
@@ -1840,6 +1941,9 @@
       update(ref(db), updates);
     });
 
+    // ───────────────────────────────────────────────
+    // 게시판 (공지사항 & 버그제보/업뎃요청 댓글 기능)
+    // ───────────────────────────────────────────────
     subtabNotice.addEventListener("click", () => {
       subtabNotice.classList.add("active");
       subtabFeedback.classList.remove("active");
@@ -1858,6 +1962,7 @@
       const isAdmin = (currentUser && currentUser.id === ADMIN_UID);
       adminNoticeWriteBox.style.display = isAdmin ? "block" : "none";
 
+      // 공지사항 로드
       onValue(ref(db, "board_notices"), (snap) => {
         noticeListContainer.innerHTML = "";
         const data = snap.val();
@@ -1877,16 +1982,61 @@
             <strong style="font-size:0.95rem; color:#fff;">${escapeHtml(item.title)}</strong>
             <p style="font-size:0.85rem; color:#ccc; margin-top:6px; line-height:1.5; white-space:pre-wrap;">${escapeHtml(item.body)}</p>
             ${isAdmin ? `<button class="btn-secondary" style="font-size:0.7rem; padding:2px 6px; margin-top:8px; color:#ff4757;" data-del-notice="${k}">공지 삭제</button>` : ''}
+            
+            <!-- 공지사항 전용 댓글 -->
+            <div class="comments-wrapper" style="margin-top:10px;">
+              <div class="comments-list" id="notice-comments-${k}"></div>
+              <form style="display:flex; gap:6px;" data-form-notice="${k}">
+                <input type="text" placeholder="공지에 댓글 달기..." style="flex:1; padding:4px 8px; font-size:0.75rem;" autocomplete="off">
+                <button type="submit" class="btn-secondary" style="padding:4px 8px; font-size:0.75rem;">등록</button>
+              </form>
+            </div>
           `;
+
           if (isAdmin) {
             div.querySelector(`[data-del-notice="${k}"]`)?.addEventListener("click", () => {
               if (confirm("공지사항을 삭제하시겠습니까?")) remove(ref(db, `board_notices/${k}`));
             });
           }
+
+          // 공지 댓글 폼
+          const form = div.querySelector(`[data-form-notice="${k}"]`);
+          form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            if (!requireLogin()) return;
+            const input = form.querySelector("input");
+            const txt = input.value.trim();
+            if (!txt) return;
+            push(ref(db, `board_notices/${k}/comments`), {
+              author: currentUser.nickname,
+              authorId: currentUser.id,
+              text: txt,
+              time: Date.now()
+            });
+            input.value = "";
+          });
+
+          // 공지 댓글 동기화
+          onValue(ref(db, `board_notices/${k}/comments`), (cSnap) => {
+            const listEl = div.querySelector(`#notice-comments-${k}`);
+            listEl.innerHTML = "";
+            const cData = cSnap.val();
+            if (cData) {
+              Object.values(cData).forEach(c => {
+                const cDiv = document.createElement("div");
+                cDiv.className = "comment-item";
+                const adminTag = (c.authorId === ADMIN_UID) ? `<span class="badge badge-admin" style="font-size:0.55rem;">관리자</span> ` : "";
+                cDiv.innerHTML = `${adminTag}<strong>${escapeHtml(c.author)}:</strong>${escapeHtml(c.text)}`;
+                listEl.appendChild(cDiv);
+              });
+            }
+          });
+
           noticeListContainer.appendChild(div);
         });
       });
 
+      // 버그제보 & 업뎃요청 로드
       onValue(ref(db, "board_feedbacks"), (snap) => {
         feedbackListContainer.innerHTML = "";
         const data = snap.val();
@@ -1899,16 +2049,59 @@
           const div = document.createElement("div");
           div.className = "board-item";
           const isAdminAuthor = (item.authorId === ADMIN_UID);
-          const authorTag = isAdminAuthor ? `<span class="badge badge-admin">관리자</span>` : "";
+          const authorTag = isAdminAuthor ? `<span class="badge badge-admin">관리자</span> ` : "";
 
           div.innerHTML = `
             <div class="board-header">
-              <span>${authorTag} <strong>${escapeHtml(item.author)}</strong></span>
+              <span>${authorTag}<strong>${escapeHtml(item.author)}</strong></span>
               <span>${new Date(item.time).toLocaleDateString()}</span>
             </div>
             <strong style="font-size:0.95rem; color:#2ed573;">${escapeHtml(item.title)}</strong>
             <p style="font-size:0.85rem; color:#ccc; margin-top:6px; line-height:1.5; white-space:pre-wrap;">${escapeHtml(item.body)}</p>
+
+            <!-- 버그제보 전용 댓글/답글 -->
+            <div class="comments-wrapper" style="margin-top:10px;">
+              <div class="comments-list" id="feedback-comments-${k}"></div>
+              <form style="display:flex; gap:6px;" data-form-feedback="${k}">
+                <input type="text" placeholder="답글 또는 의견 달기..." style="flex:1; padding:4px 8px; font-size:0.75rem;" autocomplete="off">
+                <button type="submit" class="btn-secondary" style="padding:4px 8px; font-size:0.75rem;">등록</button>
+              </form>
+            </div>
           `;
+
+          // 피드백 댓글 폼
+          const form = div.querySelector(`[data-form-feedback="${k}"]`);
+          form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            if (!requireLogin()) return;
+            const input = form.querySelector("input");
+            const txt = input.value.trim();
+            if (!txt) return;
+            push(ref(db, `board_feedbacks/${k}/comments`), {
+              author: currentUser.nickname,
+              authorId: currentUser.id,
+              text: txt,
+              time: Date.now()
+            });
+            input.value = "";
+          });
+
+          // 피드백 댓글 동기화
+          onValue(ref(db, `board_feedbacks/${k}/comments`), (cSnap) => {
+            const listEl = div.querySelector(`#feedback-comments-${k}`);
+            listEl.innerHTML = "";
+            const cData = cSnap.val();
+            if (cData) {
+              Object.values(cData).forEach(c => {
+                const cDiv = document.createElement("div");
+                cDiv.className = "comment-item";
+                const adminTag = (c.authorId === ADMIN_UID) ? `<span class="badge badge-admin" style="font-size:0.55rem;">관리자</span> ` : "";
+                cDiv.innerHTML = `${adminTag}<strong>${escapeHtml(c.author)}:</strong>${escapeHtml(c.text)}`;
+                listEl.appendChild(cDiv);
+              });
+            }
+          });
+
           feedbackListContainer.appendChild(div);
         });
       });
@@ -1952,6 +2145,9 @@
       });
     });
 
+    // ───────────────────────────────────────────────
+    // 도서관 목록 및 도서관 전용 댓글 모달
+    // ───────────────────────────────────────────────
     async function loadLibrary() {
       const snap = await get(ref(db, "library"));
       libraryContainer.innerHTML = "";
@@ -1988,18 +2184,68 @@
           });
         });
 
+        // 카드 클릭 시 도서관 상세 읽기 및 댓글 모달 열기
         card.addEventListener("click", () => {
-          alert(`[${book.title}]\n\n참여 작가: ${book.authorNames}\n\n${book.content}`);
+          openBookDetailModal(book);
         });
 
         libraryContainer.appendChild(card);
       });
     }
 
-    // ───────────────────────────────────────────────
-    // 작가 검색, 친구 신청/수락/거절 시스템
-    // ───────────────────────────────────────────────
+    function openBookDetailModal(book) {
+      currentViewingBookId = book.id;
+      bookModalTitle.textContent = book.title;
+      bookModalAuthors.textContent = `참여 작가진: ${book.authorNames} (${new Date(book.publishedAt).toLocaleDateString()} 출판)`;
+      bookModalBody.textContent = book.content;
 
+      // 도서관 댓글 실시간 동기화
+      onValue(ref(db, `library/${book.id}/comments`), (cSnap) => {
+        bookCommentsList.innerHTML = "";
+        const comments = cSnap.val();
+        if (!comments) {
+          bookCommentsList.innerHTML = `<p style="color:#666; font-size:0.75rem;">첫 번째 감상평을 남겨보세요!</p>`;
+          return;
+        }
+        Object.values(comments).forEach(c => {
+          const div = document.createElement("div");
+          div.className = "comment-item";
+          const adminTag = (c.authorId === ADMIN_UID) ? `<span class="badge badge-admin" style="font-size:0.55rem;">관리자</span> ` : "";
+          div.innerHTML = `${adminTag}<strong>${escapeHtml(c.author)}:</strong>${escapeHtml(c.text)}`;
+          bookCommentsList.appendChild(div);
+        });
+        bookCommentsList.scrollTop = bookCommentsList.scrollHeight;
+      });
+
+      modalBookDetail.style.display = "flex";
+    }
+
+    bookCommentForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!requireLogin()) return;
+      if (!currentViewingBookId) return;
+
+      const txt = bookCommentInput.value.trim();
+      if (!txt) return;
+
+      push(ref(db, `library/${currentViewingBookId}/comments`), {
+        author: currentUser.nickname,
+        authorId: currentUser.id,
+        text: txt,
+        time: Date.now()
+      }).then(() => {
+        bookCommentInput.value = "";
+      });
+    });
+
+    btnCloseBookModal.addEventListener("click", () => {
+      modalBookDetail.style.display = "none";
+      currentViewingBookId = null;
+    });
+
+    // ───────────────────────────────────────────────
+    // 작가 프로필 & 친구 추가/관리
+    // ───────────────────────────────────────────────
     async function loadProfile(targetUid) {
       const uid = targetUid || (currentUser ? currentUser.id : null);
       viewingProfileUid = uid;
@@ -2027,7 +2273,6 @@
       btnSaveProfile.style.display = isMyProfile ? "inline-block" : "none";
       profBioInput.disabled = !isMyProfile;
 
-      // 타인 프로필일 때 친구 상태 버튼 분기
       if (!isMyProfile && currentUser) {
         btnAddFriend.style.display = "inline-block";
         const [friendSnap, sentSnap, receivedSnap] = await Promise.all([
@@ -2053,7 +2298,6 @@
         btnAddFriend.style.display = "none";
       }
 
-      // 본인 프로필일 때 친구 검색 & 받은 요청 & 내 친구 목록 패널 노출
       if (isMyProfile) {
         friendSearchPanel.style.display = "block";
         friendRequestsPanel.style.display = "block";
@@ -2066,7 +2310,6 @@
         myFriendsPanel.style.display = "none";
       }
 
-      // 출판 참여작 목록
       const libSnap = await get(ref(db, "library"));
       profNovelList.innerHTML = "";
       if (libSnap.exists()) {
@@ -2089,7 +2332,6 @@
       }
     }
 
-    // 아이디 / 닉네임 회원 검색
     btnSearchUser.addEventListener("click", async () => {
       const q = inputSearchUser.value.trim().toLowerCase();
       if (!q) return alert("검색할 아이디 또는 닉네임을 입력해주세요.");
@@ -2146,31 +2388,25 @@
       });
     });
 
-    // 친구 신청 전송
     async function sendFriendRequest(targetUid, targetName) {
       if (!currentUser) return;
-      // 이미 친구인지 검사
       const fSnap = await get(ref(db, `users/${currentUser.id}/friends/${targetUid}`));
       if (fSnap.exists()) return alert("이미 친구로 등록되어 있습니다.");
 
-      // 이미 내가 요청을 보냈는지 검사
       const sentSnap = await get(ref(db, `users/${targetUid}/friend_requests/${currentUser.id}`));
       if (sentSnap.exists()) return alert("이미 친구 신청을 보냈습니다. 상대방의 수락을 기다려주세요.");
 
-      // 상대방이 나에게 보낸 요청이 있는지 검사 (상대방 요청이 있으면 즉시 친구 수락 처리)
       const revSnap = await get(ref(db, `users/${currentUser.id}/friend_requests/${targetUid}`));
       if (revSnap.exists()) {
         return acceptFriendRequest(targetUid, targetName);
       }
 
-      // 요청 등록
       await set(ref(db, `users/${targetUid}/friend_requests/${currentUser.id}`), {
         id: currentUser.id,
         name: currentUser.nickname,
         timestamp: Date.now()
       });
 
-      // 상대방에게 푸시 알림 발송
       sendPushNotification(
         [targetUid],
         "새로운 친구 요청이 도착했습니다! 📬",
@@ -2181,29 +2417,23 @@
       if (viewingProfileUid) loadProfile(viewingProfileUid);
     }
 
-    // 친구 신청 취소
     async function cancelFriendRequest(targetUid, targetName) {
       await remove(ref(db, `users/${targetUid}/friend_requests/${currentUser.id}`));
       alert(`[${targetName}] 님께 보낸 친구 신청을 취소했습니다.`);
       if (viewingProfileUid) loadProfile(viewingProfileUid);
     }
 
-    // 친구 요청 수락
     async function acceptFriendRequest(targetUid, targetName) {
       const now = Date.now();
       const updates = {};
 
-      // 서로의 friends 노드에 상호 등록
       updates[`users/${currentUser.id}/friends/${targetUid}`] = { id: targetUid, name: targetName, addedAt: now };
       updates[`users/${targetUid}/friends/${currentUser.id}`] = { id: currentUser.id, name: currentUser.nickname, addedAt: now };
-
-      // 양방향 요청 목록에서 제거
       updates[`users/${currentUser.id}/friend_requests/${targetUid}`] = null;
       updates[`users/${targetUid}/friend_requests/${currentUser.id}`] = null;
 
       await update(ref(db), updates);
 
-      // 신청했던 사람에게 수락 완료 푸시 알림 발송
       sendPushNotification(
         [targetUid],
         "친구 요청이 수락되었습니다! 🎉",
@@ -2214,14 +2444,12 @@
       loadProfile(currentUser.id);
     }
 
-    // 친구 요청 거절
     async function rejectFriendRequest(targetUid, targetName) {
       await remove(ref(db, `users/${currentUser.id}/friend_requests/${targetUid}`));
       alert(`[${targetName}] 님의 친구 요청을 거절했습니다.`);
       loadProfile(currentUser.id);
     }
 
-    // 타인 프로필 상단 친구 버튼 클릭 핸들러
     btnAddFriend.addEventListener("click", async () => {
       if (!currentUser || !viewingProfileUid) return;
       const targetSnap = await get(ref(db, `users/${viewingProfileUid}`));
@@ -2235,7 +2463,6 @@
       ]);
 
       if (friendSnap.exists()) {
-        // 친구 삭제
         if (confirm(`[${targetData.nickname}] 작가를 친구 목록에서 삭제하시겠습니까?`)) {
           const updates = {};
           updates[`users/${currentUser.id}/friends/${viewingProfileUid}`] = null;
@@ -2245,18 +2472,14 @@
           loadProfile(viewingProfileUid);
         }
       } else if (sentSnap.exists()) {
-        // 보낸 신청 취소
         cancelFriendRequest(viewingProfileUid, targetData.nickname);
       } else if (receivedSnap.exists()) {
-        // 받은 요청 수락
         acceptFriendRequest(viewingProfileUid, targetData.nickname);
       } else {
-        // 신규 친구 신청
         sendFriendRequest(viewingProfileUid, targetData.nickname);
       }
     });
 
-    // 받은 친구 요청 목록 실시간 렌더링
     function renderFriendRequests() {
       if (!currentUser) return;
       onValue(ref(db, `users/${currentUser.id}/friend_requests`), (snap) => {
@@ -2294,7 +2517,6 @@
       });
     }
 
-    // 내 친구 목록 렌더링
     async function renderMyFriendsList() {
       if (!currentUser) return;
       onValue(ref(db, `users/${currentUser.id}/friends`), (snap) => {
