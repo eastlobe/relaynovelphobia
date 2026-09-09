@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>릴레이소설공포증 😱</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- OneSignal 웹 푸시 SDK -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -58,10 +60,7 @@
       font-weight: bold;
       cursor: pointer;
     }
-    .nav-tabs {
-      display: flex;
-      gap: 4px;
-    }
+    .nav-tabs { display: flex; gap: 4px; }
     .nav-btn {
       background: transparent;
       border: 1px solid transparent;
@@ -328,7 +327,6 @@
     .library-card:hover { border-color: #2ed573; }
     .author-link { color: #2ed573; text-decoration: underline; cursor: pointer; }
 
-    /* 게시판 서브 탭 스타일 */
     .board-subtabs {
       display: flex;
       gap: 8px;
@@ -364,7 +362,19 @@
       margin-bottom: 6px;
     }
 
-    /* 모달 */
+    /* 친구 목록 전용 카드 */
+    .friend-chip {
+      background: #1e1e24;
+      border: 1px solid #323238;
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+    }
+
     .modal-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -439,12 +449,12 @@
               </select>
             </div>
             <div>
-              <label>정원 (0: 무제한)</label>
-              <input type="number" id="create-max-players" value="0" min="0" max="99">
+              <label>정원</label>
+              <input type="number" id="create-max-players" value="0" min="0" max="99" placeholder="0은 무제한">
             </div>
             <div>
-              <label>비밀번호 (공란시 공개방)</label>
-              <input type="password" id="create-room-password" placeholder="비밀번호 설정">
+              <label>비밀번호</label>
+              <input type="password" id="create-room-password" placeholder="미입력 시 공개방">
             </div>
           </div>
           <div class="row" id="create-timed-row" style="display:none;">
@@ -465,7 +475,7 @@
       </div>
 
       <div class="form-group" style="flex:1;">
-        <label>진행 / 대기 중인 방</label>
+        <label>진행 및 대기 중인 방</label>
         <div id="room-list" class="room-list">
           <p style="color: #666; font-size: 0.85rem;">개설된 방이 없습니다.</p>
         </div>
@@ -495,7 +505,7 @@
             <input type="number" id="live-turn-input" min="5" max="300" title="턴 제한(초)">초
             <input type="number" id="live-total-input" min="1" max="120" title="전체 제한(분)">분
           </div>
-          <input type="number" id="live-max-players-input" min="0" max="99" style="width:55px;" title="정원(0:무제한)">명
+          <input type="number" id="live-max-players-input" min="0" max="99" style="width:55px;" title="정원">명
           <label style="font-size:0.8rem; margin-left:6px;"><input type="checkbox" id="live-ai-first-toggle"> AI첫줄</label>
         </div>
 
@@ -545,7 +555,7 @@
         <button class="emoji-btn" data-emoji="💀">💀</button>
         <div style="flex:1;"></div>
         <button id="btn-give-up" class="btn-secondary" style="font-size:0.75rem; display:none; background:#572323;">도중하차</button>
-        <button id="btn-interrupt-join" class="btn-danger" style="font-size:0.75rem; display:none;">끼어들기! 신청</button>
+        <button id="btn-interrupt-join" class="btn-danger" style="font-size:0.75rem; display:none;">끼어들기 신청</button>
       </div>
 
       <div id="bottom-dock">
@@ -561,17 +571,16 @@
       </div>
     </div>
 
-    <!-- [뷰 3: 게시판 (공지사항 / 버그제보&업뎃요청)] -->
+    <!-- [뷰 3: 게시판] -->
     <div id="view-board" class="view-section">
       <div class="board-subtabs">
         <button class="board-subtab-btn active" id="subtab-notice">📢 공지사항</button>
-        <button class="board-subtab-btn" id="subtab-feedback">🛠️ 버그제보 & 업뎃요청</button>
+        <button class="board-subtab-btn" id="subtab-feedback">🛠️ 버그제보 및 업뎃요청</button>
       </div>
 
-      <!-- 공지사항 탭 -->
       <div id="board-notice-area">
         <div id="admin-notice-write-box" class="box-panel" style="display:none;">
-          <label style="color:#ff4757;">👑 관리자 공지사항 작성 (eastlobe 전용)</label>
+          <label style="color:#ff4757;">👑 관리자 공지사항 작성</label>
           <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
             <input type="text" id="notice-input-title" placeholder="공지사항 제목">
             <textarea id="notice-input-body" placeholder="공지사항 본문 내용"></textarea>
@@ -583,13 +592,12 @@
         </div>
       </div>
 
-      <!-- 버그제보 & 업뎃요청 탭 -->
       <div id="board-feedback-area" style="display:none;">
         <div class="box-panel">
           <label style="color:#2ed573;">버그 제보 및 업데이트 요청 작성</label>
           <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
             <input type="text" id="feedback-input-title" placeholder="제목">
-            <textarea id="feedback-input-body" placeholder="발견하신 버그나 원하시는 기능을 자유롭게 남겨주세요."></textarea>
+            <textarea id="feedback-input-body" placeholder="발견하신 버그나 원하시는 기능을 남겨주세요."></textarea>
             <button id="btn-submit-feedback" class="btn-primary" style="align-self:flex-start;">등록하기</button>
           </div>
         </div>
@@ -610,10 +618,13 @@
       </div>
     </div>
 
-    <!-- [뷰 5: 작가 프로필] -->
+    <!-- [뷰 5: 작가 프로필 & 친구 관리] -->
     <div id="view-profile" class="view-section">
       <div class="box-panel">
-        <h2 id="prof-display-name" style="font-size:1.2rem; color:#2ed573; margin-bottom:8px;">작가 프로필</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h2 id="prof-display-name" style="font-size:1.2rem; color:#2ed573;">작가 프로필</h2>
+          <button id="btn-add-friend" class="btn-primary" style="display:none; padding:4px 10px; font-size:0.8rem;">+ 친구 추가</button>
+        </div>
         <div class="form-group">
           <label>자기소개</label>
           <textarea id="prof-bio-input" placeholder="자신을 표현하는 작가 소개글을 남겨보세요."></textarea>
@@ -621,15 +632,24 @@
         <button id="btn-save-profile" class="btn-primary" style="align-self:flex-start;">소개글 저장</button>
       </div>
 
+      <!-- 친구 관리 패널 (본인 프로필일 때만 표시) -->
+      <div id="my-friends-panel" class="box-panel" style="display:none;">
+        <h3 style="font-size:0.95rem; color:#fff; margin-bottom:10px;">내 친구 목록 👥</h3>
+        <p style="font-size:0.75rem; color:#888; margin-bottom:10px;">친구가 새 방을 만들면 웹 푸시 알림이 발송됩니다.</p>
+        <div id="my-friends-list">
+          <p style="color:#666; font-size:0.85rem;">등록된 친구가 없습니다.</p>
+        </div>
+      </div>
+
       <div class="box-panel">
         <h3 style="font-size:0.95rem; color:#fff; margin-bottom:10px;">참여하여 출판된 소설 작품</h3>
         <div id="prof-novel-list" class="room-list">
-          <p style="color:#666; font-size:0.85rem;">아직 출판된 참여작이 없습니다.</p>
+          <p style="color:#666; font-size:0.85rem;">출판된 참여작이 없습니다.</p>
         </div>
       </div>
     </div>
 
-    <!-- 완결 및 도서관 게시 투표 모달 -->
+    <!-- 완결 모달 -->
     <div id="modal-novel-end" class="modal-overlay">
       <div class="modal-content">
         <h2 style="color: #2ed573; font-size: 1.15rem;">소설 완성</h2>
@@ -673,6 +693,24 @@
         <button id="btn-auth-close" class="btn-secondary" style="margin-top:4px; padding:4px;">닫기</button>
       </div>
     </div>
+
+    <!-- 알림 유도 팝업 모달 -->
+    <div id="modal-push-prompt" class="modal-overlay">
+      <div class="modal-content" style="max-width:420px; text-align:center;">
+        <div style="font-size:3rem; margin-bottom:8px;">🔔</div>
+        <h2 style="color:#fff; font-size:1.15rem;">친구의 집필 소식을 놓치지 마세요!</h2>
+        <p style="font-size:0.85rem; color:#aaa; line-height:1.6; margin-top:8px;">
+          웹 푸시 알림을 켜두시면 <strong>친구가 새로운 소설 방을 열었을 때</strong> 브라우저가 꺼져 있어도 실시간으로 바로 알려드립니다!
+        </p>
+        <div style="display:flex; gap:8px; margin-top:14px;">
+          <button id="btn-enable-push" class="btn-primary" style="flex:1;">알림 켜기</button>
+          <button id="btn-dismiss-push" class="btn-secondary">닫기</button>
+        </div>
+        <label style="display:flex; justify-content:center; align-items:center; gap:6px; font-size:0.75rem; color:#777; margin-top:8px; cursor:pointer;">
+          <input type="checkbox" id="chk-never-show-push"> 다시 보지 않기
+        </label>
+      </div>
+    </div>
   </div>
 
   <script type="module">
@@ -680,6 +718,10 @@
     import { 
       getDatabase, ref, set, push, onValue, update, remove, onDisconnect, get 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+
+    // ⚠️ OneSignal 무료 대시보드에서 발급받은 실제 키를 넣어주세요.
+    const ONESIGNAL_APP_ID = "YOUR_ONESIGNAL_APP_ID";
+    const ONESIGNAL_REST_API_KEY = "YOUR_ONESIGNAL_REST_API_KEY";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBsvhq6Y1KzvUJ9gUlF6_QEgYoj-FzuZMU",
@@ -695,7 +737,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // 관리자 계정 ID 상수
     const ADMIN_UID = "eastlobe";
 
     const BOT_PERSONAS = {
@@ -715,7 +756,8 @@
     let turnTimer = null;
     let panicTimeout = null;
     let botExecutionTimeout = null;
-    let isIdVerified = false; // 회원가입 중복확인 통과 플래그
+    let isIdVerified = false;
+    let viewingProfileUid = null;
 
     // DOM 참조
     const navTabs = {
@@ -734,7 +776,6 @@
     const headerUserBadge = document.getElementById("header-user-badge");
     const btnAuthAction = document.getElementById("btn-auth-action");
 
-    // 로비 방 생성
     const createRoomTitle = document.getElementById("create-room-title");
     const createRoomMode = document.getElementById("create-room-mode");
     const createMaxPlayers = document.getElementById("create-max-players");
@@ -746,7 +787,6 @@
     const btnCreateRoom = document.getElementById("btn-create-room");
     const roomList = document.getElementById("room-list");
 
-    // 방 내부
     const roomTitleLabel = document.getElementById("room-title-label");
     const roomModeTag = document.getElementById("room-mode-tag");
     const roomLimitTag = document.getElementById("room-limit-tag");
@@ -780,7 +820,6 @@
     const chatForm = document.getElementById("chat-form");
     const chatInput = document.getElementById("chat-input");
 
-    // 게시판 DOM
     const subtabNotice = document.getElementById("subtab-notice");
     const subtabFeedback = document.getElementById("subtab-feedback");
     const boardNoticeArea = document.getElementById("board-notice-area");
@@ -795,14 +834,15 @@
     const btnSubmitFeedback = document.getElementById("btn-submit-feedback");
     const feedbackListContainer = document.getElementById("feedback-list-container");
 
-    // 도서관 & 프로필
     const libraryContainer = document.getElementById("library-container");
     const profDisplayName = document.getElementById("prof-display-name");
     const profBioInput = document.getElementById("prof-bio-input");
     const btnSaveProfile = document.getElementById("btn-save-profile");
+    const btnAddFriend = document.getElementById("btn-add-friend");
+    const myFriendsPanel = document.getElementById("my-friends-panel");
+    const myFriendsList = document.getElementById("my-friends-list");
     const profNovelList = document.getElementById("prof-novel-list");
 
-    // 모달 DOM
     const modalAuth = document.getElementById("modal-auth");
     const authIdInput = document.getElementById("auth-id-input");
     const authPwInput = document.getElementById("auth-pw-input");
@@ -824,7 +864,93 @@
     const btnModalExit = document.getElementById("btn-modal-exit");
     const panicOverlay = document.getElementById("panic-overlay");
 
-    // 1. 네비게이션 탭 전환
+    // 알림 유도 팝업 DOM
+    const modalPushPrompt = document.getElementById("modal-push-prompt");
+    const btnEnablePush = document.getElementById("btn-enable-push");
+    const btnDismissPush = document.getElementById("btn-dismiss-push");
+    const chkNeverShowPush = document.getElementById("chk-never-show-push");
+
+    // 1. OneSignal 초기화 및 로그인 유저 external_id 바인딩
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: ONESIGNAL_APP_ID,
+        notifyButton: { enable: false }
+      });
+
+      if (currentUser) {
+        await OneSignal.login(currentUser.id);
+      }
+
+      checkAndShowPushPrompt(OneSignal);
+    });
+
+    // 알림 미설정 유저 팝업 트리거
+    async function checkAndShowPushPrompt(OneSignal) {
+      const isNeverShow = localStorage.getItem("rnp_never_show_push") === "true";
+      if (isNeverShow) return;
+
+      const isPushEnabled = await OneSignal.User.PushSubscription.optedIn;
+      if (!isPushEnabled) {
+        setTimeout(() => {
+          modalPushPrompt.style.display = "flex";
+        }, 1200);
+      }
+    }
+
+    btnEnablePush.addEventListener("click", async () => {
+      if (window.OneSignal) {
+        await window.OneSignal.User.PushSubscription.optIn();
+        if (currentUser) {
+          await window.OneSignal.login(currentUser.id);
+        }
+      }
+      modalPushPrompt.style.display = "none";
+    });
+
+    btnDismissPush.addEventListener("click", () => {
+      if (chkNeverShowPush.checked) {
+        localStorage.setItem("rnp_never_show_push", "true");
+      }
+      modalPushPrompt.style.display = "none";
+    });
+
+    // 2. 친구에게만 발송되는 OneSignal REST API 푸시 함수
+    async function sendPushToFriends(creatorUid, creatorName, roomTitle) {
+      try {
+        // 방 생성자의 친구 목록(나를 친구로 등록한 사람 or 내 친구) 조회
+        const snap = await get(ref(db, `users/${creatorUid}/friends`));
+        if (!snap.exists()) return;
+
+        const friendIds = Object.keys(snap.val() || {});
+        if (friendIds.length === 0) return;
+
+        // OneSignal REST API 호출 (외부 아이디 기반 타겟 발송)
+        await fetch("https://onesignal.com/api/v1/notifications", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Authorization": `Basic ${ONESIGNAL_REST_API_KEY}`
+          },
+          body: JSON.stringify({
+            app_id: ONESIGNAL_APP_ID,
+            include_aliases: {
+              external_id: friendIds
+            },
+            target_channel: "push",
+            headings: { en: "릴레이소설공포증 😱", ko: "친구가 방을 열었습니다!" },
+            contents: {
+              en: `${creatorName} has created a new novel room: [${roomTitle}]!`,
+              ko: `[${creatorName}] 작가님이 새 소설 방 [${roomTitle}]을(를) 개설했습니다! 지금 바로 집필에 합류해보세요.`
+            }
+          })
+        });
+      } catch (err) {
+        console.warn("OneSignal 푸시 발송 실패:", err);
+      }
+    }
+
+    // 3. 네비게이션 탭
     function switchTab(tabName) {
       if (currentRoomId && tabName !== "room") {
         if (!confirm("진행 중인 방에서 나가시겠습니까?")) return;
@@ -846,7 +972,7 @@
     navTabs.profile.addEventListener("click", () => switchTab("profile"));
     document.getElementById("nav-brand").addEventListener("click", () => switchTab("lobby"));
 
-    // 2. 인증 및 관리자 뱃지
+    // 4. 인증 관리
     function updateAuthUI() {
       if (currentUser) {
         const isAdmin = (currentUser.id === ADMIN_UID);
@@ -863,6 +989,7 @@
 
     btnAuthAction.addEventListener("click", () => {
       if (currentUser) {
+        if (window.OneSignal) window.OneSignal.logout();
         currentUser = null;
         localStorage.removeItem("rnp_auth_user");
         updateAuthUI();
@@ -890,7 +1017,6 @@
     btnAuthSwitch.addEventListener("click", () => openAuthModal(!isSignupMode));
     btnAuthClose.addEventListener("click", () => modalAuth.style.display = "none");
 
-    // 회원가입 시 아이디 변경되면 중복확인 리셋
     authIdInput.addEventListener("input", () => {
       if (isSignupMode) {
         isIdVerified = false;
@@ -898,7 +1024,6 @@
       }
     });
 
-    // 회원가입 아이디 중복확인 버튼 로직
     btnCheckDuplicate.addEventListener("click", async () => {
       const uId = authIdInput.value.trim().toLowerCase();
       if (!uId) return alert("아이디를 입력해주세요.");
@@ -934,6 +1059,7 @@
         await set(userRef, newUserData);
         currentUser = newUserData;
         localStorage.setItem("rnp_auth_user", JSON.stringify(currentUser));
+        if (window.OneSignal) await window.OneSignal.login(currentUser.id);
         modalAuth.style.display = "none";
         updateAuthUI();
         alert("회원가입이 완료되었습니다!");
@@ -942,6 +1068,7 @@
         if (!snap.exists() || snap.val().pw !== pw) return alert("아이디 또는 비밀번호가 올바르지 않습니다.");
         currentUser = snap.val();
         localStorage.setItem("rnp_auth_user", JSON.stringify(currentUser));
+        if (window.OneSignal) await window.OneSignal.login(currentUser.id);
         modalAuth.style.display = "none";
         updateAuthUI();
       }
@@ -955,7 +1082,7 @@
       return true;
     }
 
-    // 3. 방 개설 (비밀방 옵션 지원)
+    // 5. 방 생성 & 친구 푸시 발송 연동
     createRoomMode.addEventListener("change", () => {
       createTimedRow.style.display = (createRoomMode.value === "timed") ? "flex" : "none";
     });
@@ -1009,11 +1136,12 @@
 
       set(newRef, newRoom).then(() => {
         createRoomPassword.value = "";
+        // 친구들에게만 백그라운드 웹 푸시 발송 트리거
+        sendPushToFriends(currentUser.id, currentUser.nickname, title);
         joinRoom(rId, password);
       });
     });
 
-    // 로비 방 목록 실시간 감시
     onValue(ref(db, "rooms"), (snapshot) => {
       const rooms = snapshot.val();
       roomList.innerHTML = "";
@@ -1026,7 +1154,6 @@
         const pList = r.players ? Object.values(r.players) : [];
         const humanCount = pList.filter(p => !p.isBot).length;
 
-        // 사람이 0명이면 방 자동 폭파
         if (humanCount === 0) {
           remove(ref(db, `rooms/${rId}`));
           return;
@@ -1051,18 +1178,16 @@
       });
     });
 
-    // 비밀방 비밀번호 검증 후 입장
     async function handleRoomEntry(rId, r) {
       if (!requireLogin()) return;
       if (r.isLocked && r.hostId !== currentUser.id) {
-        const inputPw = prompt("🔒 비밀방입니다. 방장이 설정한 비밀번호를 입력해주세요:");
+        const inputPw = prompt("🔒 비밀방입니다. 비밀번호를 입력해주세요:");
         if (inputPw === null) return;
         if (inputPw !== r.password) return alert("비밀번호가 일치하지 않습니다.");
       }
       joinRoom(rId);
     }
 
-    // 4. 방 입장
     async function joinRoom(rId) {
       currentRoomId = rId;
       const rSnap = await get(ref(db, `rooms/${rId}`));
@@ -1097,7 +1222,6 @@
       views[viewName].classList.add("active");
     }
 
-    // 5. 방 데이터 구독 및 실시간 동기화
     function listenToRoom(rId) {
       const roomRef = ref(db, `rooms/${rId}`);
       onValue(roomRef, (snapshot) => {
@@ -1117,7 +1241,6 @@
           return;
         }
 
-        // 방장 자동 계승 (가장 오래된 인간 참가자)
         let hostId = humanIds[0];
         let oldestTime = players[hostId].joinedAt || 0;
         humanIds.forEach(id => {
@@ -1135,7 +1258,6 @@
       });
     }
 
-    // 6. 게임 룸 UI 렌더링
     function renderRoomUI(hostId, pIds) {
       const isHost = (currentUser && currentUser.id === hostId);
       const players = roomData.players || {};
@@ -1146,7 +1268,6 @@
       roomLimitTag.textContent = roomData.maxPlayers > 0 ? `정원 ${roomData.maxPlayers}명` : "무제한";
       roomLockTag.style.display = roomData.isLocked ? "inline-block" : "none";
 
-      // 플레이어 목록
       roomPlayersList.innerHTML = "";
       const currentTurnId = (roomData.playerOrder && roomData.playerOrder.length > 0)
         ? roomData.playerOrder[roomData.currentTurnIndex % roomData.playerOrder.length]
@@ -1309,7 +1430,6 @@
       update(ref(db), updates);
     });
 
-    // 7. 도중하차 & 끼어들기
     btnGiveUp.addEventListener("click", () => {
       if (!confirm("정말 도중하차하시겠습니까? 관전자 상태로 전환되며 차례에서 제외됩니다.")) return;
       const curOrder = roomData.playerOrder || [];
@@ -1391,7 +1511,6 @@
       }
     });
 
-    // 8. 리액션 & 채팅
     document.querySelectorAll(".emoji-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         if (!currentRoomId) return;
@@ -1444,7 +1563,6 @@
       chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight;
     }
 
-    // 9. 실시간 LLM 작문
     function scheduleLiveLlmBotTurn(botId) {
       clearTimeout(botExecutionTimeout);
       const bot = roomData.players[botId];
@@ -1502,7 +1620,6 @@
       return c.split("\n")[0].trim();
     }
 
-    // 10. 턴 루프
     function runTurnTimerLoop(currentTurnId, hostId) {
       const isMyTurn = (currentTurnId === currentUser.id);
       const curWriter = roomData.players[currentTurnId];
@@ -1645,7 +1762,6 @@
       storyScroll.scrollTop = storyScroll.scrollHeight;
     }
 
-    // 11. 완결 & 출판 투표
     btnVoteFinish.addEventListener("click", () => {
       const curVote = roomData.finishVotes?.[currentUser.id] || false;
       const nextVote = !curVote;
@@ -1710,7 +1826,6 @@
       update(ref(db), updates);
     });
 
-    // 12. 신설 게시판 (공지사항 & 버그제보/업뎃요청)
     subtabNotice.addEventListener("click", () => {
       subtabNotice.classList.add("active");
       subtabFeedback.classList.remove("active");
@@ -1726,11 +1841,9 @@
     });
 
     function loadBoardData() {
-      // eastlobe 관리자 로그인 시 공지 작성창 노출
       const isAdmin = (currentUser && currentUser.id === ADMIN_UID);
       adminNoticeWriteBox.style.display = isAdmin ? "block" : "none";
 
-      // 공지사항 불러오기
       onValue(ref(db, "board_notices"), (snap) => {
         noticeListContainer.innerHTML = "";
         const data = snap.val();
@@ -1760,7 +1873,6 @@
         });
       });
 
-      // 버그제보/업뎃요청 불러오기
       onValue(ref(db, "board_feedbacks"), (snap) => {
         feedbackListContainer.innerHTML = "";
         const data = snap.val();
@@ -1788,7 +1900,6 @@
       });
     }
 
-    // 공지사항 등록 (eastlobe 전용)
     btnSubmitNotice.addEventListener("click", () => {
       if (!currentUser || currentUser.id !== ADMIN_UID) return alert("관리자만 작성할 수 있습니다.");
       const t = noticeInputTitle.value.trim();
@@ -1808,7 +1919,6 @@
       });
     });
 
-    // 버그제보 & 업뎃요청 등록
     btnSubmitFeedback.addEventListener("click", () => {
       if (!requireLogin()) return;
       const t = feedbackInputTitle.value.trim();
@@ -1828,7 +1938,6 @@
       });
     });
 
-    // 13. 도서관 목록 렌더링
     async function loadLibrary() {
       const snap = await get(ref(db, "library"));
       libraryContainer.innerHTML = "";
@@ -1873,13 +1982,17 @@
       });
     }
 
-    // 14. 작가 프로필
+    // 6. 작가 프로필 & 친구 추가/관리
     async function loadProfile(targetUid) {
       const uid = targetUid || (currentUser ? currentUser.id : null);
+      viewingProfileUid = uid;
+
       if (!uid) {
         profDisplayName.textContent = "로그인이 필요합니다.";
         profBioInput.value = "";
         btnSaveProfile.style.display = "none";
+        btnAddFriend.style.display = "none";
+        myFriendsPanel.style.display = "none";
         profNovelList.innerHTML = `<p style="color:#666; font-size:0.85rem;">로그인 후 프로필을 확인할 수 있습니다.</p>`;
         return;
       }
@@ -1888,11 +2001,35 @@
       if (!uSnap.exists()) return;
       const uData = uSnap.val();
 
+      const isMyProfile = (currentUser && currentUser.id === uid);
       const adminTag = (uid === ADMIN_UID) ? `<span class="badge badge-admin" style="margin-right:6px;">관리자</span>` : "";
       profDisplayName.innerHTML = `${adminTag}${escapeHtml(uData.nickname)} 작가 프로필`;
       profBioInput.value = uData.bio || "";
-      btnSaveProfile.style.display = (currentUser && currentUser.id === uid) ? "inline-block" : "none";
-      profBioInput.disabled = !(currentUser && currentUser.id === uid);
+      btnSaveProfile.style.display = isMyProfile ? "inline-block" : "none";
+      profBioInput.disabled = !isMyProfile;
+
+      // 타인 프로필일 때 친구 추가 버튼 활성화
+      if (!isMyProfile && currentUser) {
+        const myFriendSnap = await get(ref(db, `users/${currentUser.id}/friends/${uid}`));
+        btnAddFriend.style.display = "inline-block";
+        if (myFriendSnap.exists()) {
+          btnAddFriend.textContent = "친구 삭제";
+          btnAddFriend.className = "btn-danger";
+        } else {
+          btnAddFriend.textContent = "+ 친구 추가";
+          btnAddFriend.className = "btn-primary";
+        }
+      } else {
+        btnAddFriend.style.display = "none";
+      }
+
+      // 본인 프로필일 때 친구 목록 패널 렌더링
+      if (isMyProfile) {
+        myFriendsPanel.style.display = "block";
+        renderMyFriendsList();
+      } else {
+        myFriendsPanel.style.display = "none";
+      }
 
       const libSnap = await get(ref(db, "library"));
       profNovelList.innerHTML = "";
@@ -1916,6 +2053,66 @@
       }
     }
 
+    // 친구 추가/삭제 토글
+    btnAddFriend.addEventListener("click", async () => {
+      if (!currentUser || !viewingProfileUid) return;
+      const targetSnap = await get(ref(db, `users/${viewingProfileUid}`));
+      if (!targetSnap.exists()) return;
+      const targetData = targetSnap.val();
+
+      const friendRef = ref(db, `users/${currentUser.id}/friends/${viewingProfileUid}`);
+      const snap = await get(friendRef);
+
+      if (snap.exists()) {
+        await remove(friendRef);
+        alert(`[${targetData.nickname}] 님을 친구 목록에서 삭제했습니다.`);
+      } else {
+        await set(friendRef, {
+          id: viewingProfileUid,
+          name: targetData.nickname,
+          addedAt: Date.now()
+        });
+        alert(`[${targetData.nickname}] 님을 친구로 추가했습니다! 해당 작가가 방을 열면 푸시 알림을 받습니다.`);
+      }
+      loadProfile(viewingProfileUid);
+    });
+
+    // 내 친구 목록 렌더링
+    async function renderMyFriendsList() {
+      if (!currentUser) return;
+      const snap = await get(ref(db, `users/${currentUser.id}/friends`));
+      myFriendsList.innerHTML = "";
+      if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
+        myFriendsList.innerHTML = `<p style="color:#666; font-size:0.85rem;">등록된 친구가 없습니다. 도서관이나 방에서 작가 프로필을 눌러 친구를 추가해보세요!</p>`;
+        return;
+      }
+      const friends = snap.val();
+      Object.entries(friends).forEach(([fUid, fData]) => {
+        const div = document.createElement("div");
+        div.className = "friend-chip";
+        div.innerHTML = `
+          <div>
+            <strong>${escapeHtml(fData.name)}</strong>
+            <span style="font-size:0.75rem; color:#888; margin-left:6px;">(${fUid})</span>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-secondary" style="padding:2px 8px; font-size:0.7rem;" data-view-f="${fUid}">프로필</button>
+            <button class="btn-danger" style="padding:2px 8px; font-size:0.7rem;" data-del-f="${fUid}">삭제</button>
+          </div>
+        `;
+        div.querySelector(`[data-view-f="${fUid}"]`).addEventListener("click", () => {
+          loadProfile(fUid);
+        });
+        div.querySelector(`[data-del-f="${fUid}"]`).addEventListener("click", async () => {
+          if (confirm(`[${fData.name}] 친구를 삭제하시겠습니까?`)) {
+            await remove(ref(db, `users/${currentUser.id}/friends/${fUid}`));
+            renderMyFriendsList();
+          }
+        });
+        myFriendsList.appendChild(div);
+      });
+    }
+
     btnSaveProfile.addEventListener("click", async () => {
       if (!currentUser) return;
       const newBio = profBioInput.value.trim();
@@ -1925,7 +2122,6 @@
       alert("소개글이 저장되었습니다!");
     });
 
-    // 15. PDF 다운로드
     btnSavePdf.addEventListener("click", () => {
       const stories = roomData.stories || {};
       const paragraphs = Object.values(stories).filter(s => !s.isSystem).map(s => {
@@ -1952,7 +2148,6 @@
       }).from(container).save();
     });
 
-    // 16. 퇴장 및 클린업
     function leaveRoom() {
       if (currentRoomId && currentUser) {
         remove(ref(db, `rooms/${currentRoomId}/players/${currentUser.id}`)).then(() => {
