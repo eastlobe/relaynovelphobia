@@ -365,7 +365,7 @@
     .friend-chip {
       background: #1e1e24;
       border: 1px solid #323238;
-      padding: 6px 12px;
+      padding: 8px 12px;
       border-radius: 6px;
       display: flex;
       justify-content: space-between;
@@ -619,10 +619,11 @@
 
     <!-- [뷰 5: 작가 프로필 & 친구 관리] -->
     <div id="view-profile" class="view-section">
+      <!-- 프로필 상단 요약 -->
       <div class="box-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <h2 id="prof-display-name" style="font-size:1.2rem; color:#2ed573;">작가 프로필</h2>
-          <button id="btn-add-friend" class="btn-primary" style="display:none; padding:4px 10px; font-size:0.8rem;">+ 친구 추가</button>
+          <button id="btn-add-friend" class="btn-primary" style="display:none; padding:4px 10px; font-size:0.8rem;">+ 친구 신청</button>
         </div>
         <div class="form-group">
           <label>자기소개</label>
@@ -631,14 +632,34 @@
         <button id="btn-save-profile" class="btn-primary" style="align-self:flex-start;">소개글 저장</button>
       </div>
 
+      <!-- 친구 검색창 (본인 프로필일 때 표시) -->
+      <div id="friend-search-panel" class="box-panel" style="display:none;">
+        <h3 style="font-size:0.95rem; color:#fff; margin-bottom:8px;">작가 찾기 및 친구 신청 🔍</h3>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="input-search-user" placeholder="찾으실 아이디 또는 닉네임 입력" style="flex:1;">
+          <button id="btn-search-user" class="btn-secondary" style="padding:6px 12px;">검색</button>
+        </div>
+        <div id="search-results-list" style="margin-top:10px; display:flex; flex-direction:column; gap:6px;"></div>
+      </div>
+
+      <!-- 받은 친구 요청 목록 (본인 프로필일 때 표시) -->
+      <div id="friend-requests-panel" class="box-panel" style="display:none; border-color:#e67e22;">
+        <h3 style="font-size:0.95rem; color:#f39c12; margin-bottom:10px;">받은 친구 요청 📬</h3>
+        <div id="friend-requests-list">
+          <p style="color:#666; font-size:0.85rem;">받은 친구 요청이 없습니다.</p>
+        </div>
+      </div>
+
+      <!-- 내 친구 목록 (본인 프로필일 때 표시) -->
       <div id="my-friends-panel" class="box-panel" style="display:none;">
         <h3 style="font-size:0.95rem; color:#fff; margin-bottom:10px;">내 친구 목록 👥</h3>
-        <p style="font-size:0.75rem; color:#888; margin-bottom:10px;">친구가 새 방을 만들면 웹 푸시 알림이 발송됩니다.</p>
+        <p style="font-size:0.75rem; color:#888; margin-bottom:10px;">서로 친구가 되면 새 방 개설 알림을 주고받습니다.</p>
         <div id="my-friends-list">
           <p style="color:#666; font-size:0.85rem;">등록된 친구가 없습니다.</p>
         </div>
       </div>
 
+      <!-- 참여작 목록 -->
       <div class="box-panel">
         <h3 style="font-size:0.95rem; color:#fff; margin-bottom:10px;">참여하여 출판된 소설 작품</h3>
         <div id="prof-novel-list" class="room-list">
@@ -696,9 +717,9 @@
     <div id="modal-push-prompt" class="modal-overlay">
       <div class="modal-content" style="max-width:420px; text-align:center;">
         <div style="font-size:3rem; margin-bottom:8px;">🔔</div>
-        <h2 style="color:#fff; font-size:1.15rem;">친구의 집필 소식을 놓치지 마세요!</h2>
+        <h2 style="color:#fff; font-size:1.15rem;">친구의 집필 및 신청 소식을 놓치지 마세요!</h2>
         <p style="font-size:0.85rem; color:#aaa; line-height:1.6; margin-top:8px;">
-          웹 푸시 알림을 켜두시면 <strong>친구가 새로운 소설 방을 열었을 때</strong> 브라우저가 꺼져 있어도 실시간으로 바로 알려드립니다!
+          웹 푸시 알림을 켜두시면 <strong>친구가 새 방을 열었을 때</strong>뿐만 아니라 <strong>친구 신청이나 수락 소식</strong>도 실시간으로 바로 알려드립니다!
         </p>
         <div style="display:flex; gap:8px; margin-top:14px;">
           <button id="btn-enable-push" class="btn-primary" style="flex:1;">알림 켜기</button>
@@ -717,11 +738,10 @@
       getDatabase, ref, set, push, onValue, update, remove, onDisconnect, get 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
-    // 1. OneSignal 공식 공개 App ID 반영
     const ONESIGNAL_APP_ID = "1f8e25e9-5dbc-4bd5-b63c-82c43571ced2";
 
-    // 2. Cloudflare Worker 중계기 URL (1단계에서 생성한 본인 워커 주소로 변경하세요)
-    const PUSH_PROXY_URL = "https://summer-leaf-7fe3.dyeric031001.workers.dev/";
+    // ⚠️ 사용자분의 Cloudflare Worker URL
+    const PUSH_PROXY_URL = "https://summer-leaf-7fe3.dyeric031001.workers.dev";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBsvhq6Y1KzvUJ9gUlF6_QEgYoj-FzuZMU",
@@ -838,6 +858,12 @@
     const profBioInput = document.getElementById("prof-bio-input");
     const btnSaveProfile = document.getElementById("btn-save-profile");
     const btnAddFriend = document.getElementById("btn-add-friend");
+    const friendSearchPanel = document.getElementById("friend-search-panel");
+    const inputSearchUser = document.getElementById("input-search-user");
+    const btnSearchUser = document.getElementById("btn-search-user");
+    const searchResultsList = document.getElementById("search-results-list");
+    const friendRequestsPanel = document.getElementById("friend-requests-panel");
+    const friendRequestsList = document.getElementById("friend-requests-list");
     const myFriendsPanel = document.getElementById("my-friends-panel");
     const myFriendsList = document.getElementById("my-friends-list");
     const profNovelList = document.getElementById("prof-novel-list");
@@ -868,7 +894,7 @@
     const btnDismissPush = document.getElementById("btn-dismiss-push");
     const chkNeverShowPush = document.getElementById("chk-never-show-push");
 
-    // OneSignal 초기화 및 서비스 워커 연동
+    // OneSignal 초기화
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal) {
       await OneSignal.init({
@@ -914,27 +940,21 @@
       modalPushPrompt.style.display = "none";
     });
 
-    // Cloudflare 중계 서버를 통한 안전한 친구 푸시 발송 (비밀키 노출 0%)
-    async function sendPushToFriends(creatorUid, creatorName, roomTitle) {
+    // 범용 웹 푸시 알림 발송 함수 (Cloudflare Worker 프록시 경유)
+    async function sendPushNotification(targetIds, title, message) {
+      if (!targetIds || targetIds.length === 0) return;
       try {
-        const snap = await get(ref(db, `users/${creatorUid}/friends`));
-        if (!snap.exists()) return;
-
-        const friendIds = Object.keys(snap.val() || {});
-        if (friendIds.length === 0) return;
-
-        // Cloudflare 중계 Worker로 POST 요청
         await fetch(PUSH_PROXY_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            friendIds: friendIds,
-            creatorName: creatorName,
-            roomTitle: roomTitle
+            targetIds: targetIds,
+            title: title,
+            message: message
           })
         });
       } catch (err) {
-        console.warn("푸시 중계 요청 실패:", err);
+        console.warn("푸시 알림 전송 실패:", err);
       }
     }
 
@@ -1072,7 +1092,7 @@
       createTimedRow.style.display = (createRoomMode.value === "timed") ? "flex" : "none";
     });
 
-    btnCreateRoom.addEventListener("click", () => {
+    btnCreateRoom.addEventListener("click", async () => {
       if (!requireLogin()) return;
       const title = createRoomTitle.value.trim() || "릴레이 소설";
       const mode = createRoomMode.value;
@@ -1119,12 +1139,21 @@
         chats: {}
       };
 
-      set(newRef, newRoom).then(() => {
-        createRoomPassword.value = "";
-        // Cloudflare 중계를 거쳐 친구들에게 푸시 발송
-        sendPushToFriends(currentUser.id, currentUser.nickname, title);
-        joinRoom(rId, password);
-      });
+      await set(newRef, newRoom);
+      createRoomPassword.value = "";
+
+      // 친구들에게만 방 개설 푸시 알림 발송
+      const fSnap = await get(ref(db, `users/${currentUser.id}/friends`));
+      if (fSnap.exists()) {
+        const friendIds = Object.keys(fSnap.val() || {});
+        sendPushNotification(
+          friendIds,
+          "친구가 방을 열었습니다! 😱",
+          `[${currentUser.nickname}] 작가님이 새 방 [${title}]을(를) 개설했습니다!`
+        );
+      }
+
+      joinRoom(rId, password);
     });
 
     onValue(ref(db, "rooms"), (snapshot) => {
@@ -1967,6 +1996,10 @@
       });
     }
 
+    // ───────────────────────────────────────────────
+    // 작가 검색, 친구 신청/수락/거절 시스템
+    // ───────────────────────────────────────────────
+
     async function loadProfile(targetUid) {
       const uid = targetUid || (currentUser ? currentUser.id : null);
       viewingProfileUid = uid;
@@ -1976,6 +2009,8 @@
         profBioInput.value = "";
         btnSaveProfile.style.display = "none";
         btnAddFriend.style.display = "none";
+        friendSearchPanel.style.display = "none";
+        friendRequestsPanel.style.display = "none";
         myFriendsPanel.style.display = "none";
         profNovelList.innerHTML = `<p style="color:#666; font-size:0.85rem;">로그인 후 프로필을 확인할 수 있습니다.</p>`;
         return;
@@ -1992,27 +2027,46 @@
       btnSaveProfile.style.display = isMyProfile ? "inline-block" : "none";
       profBioInput.disabled = !isMyProfile;
 
+      // 타인 프로필일 때 친구 상태 버튼 분기
       if (!isMyProfile && currentUser) {
-        const myFriendSnap = await get(ref(db, `users/${currentUser.id}/friends/${uid}`));
         btnAddFriend.style.display = "inline-block";
-        if (myFriendSnap.exists()) {
+        const [friendSnap, sentSnap, receivedSnap] = await Promise.all([
+          get(ref(db, `users/${currentUser.id}/friends/${uid}`)),
+          get(ref(db, `users/${uid}/friend_requests/${currentUser.id}`)),
+          get(ref(db, `users/${currentUser.id}/friend_requests/${uid}`))
+        ]);
+
+        if (friendSnap.exists()) {
           btnAddFriend.textContent = "친구 삭제";
           btnAddFriend.className = "btn-danger";
+        } else if (sentSnap.exists()) {
+          btnAddFriend.textContent = "신청 취소";
+          btnAddFriend.className = "btn-secondary";
+        } else if (receivedSnap.exists()) {
+          btnAddFriend.textContent = "요청 수락하기";
+          btnAddFriend.className = "btn-primary";
         } else {
-          btnAddFriend.textContent = "+ 친구 추가";
+          btnAddFriend.textContent = "+ 친구 신청";
           btnAddFriend.className = "btn-primary";
         }
       } else {
         btnAddFriend.style.display = "none";
       }
 
+      // 본인 프로필일 때 친구 검색 & 받은 요청 & 내 친구 목록 패널 노출
       if (isMyProfile) {
+        friendSearchPanel.style.display = "block";
+        friendRequestsPanel.style.display = "block";
         myFriendsPanel.style.display = "block";
+        renderFriendRequests();
         renderMyFriendsList();
       } else {
+        friendSearchPanel.style.display = "none";
+        friendRequestsPanel.style.display = "none";
         myFriendsPanel.style.display = "none";
       }
 
+      // 출판 참여작 목록
       const libSnap = await get(ref(db, "library"));
       profNovelList.innerHTML = "";
       if (libSnap.exists()) {
@@ -2035,61 +2089,250 @@
       }
     }
 
+    // 아이디 / 닉네임 회원 검색
+    btnSearchUser.addEventListener("click", async () => {
+      const q = inputSearchUser.value.trim().toLowerCase();
+      if (!q) return alert("검색할 아이디 또는 닉네임을 입력해주세요.");
+
+      searchResultsList.innerHTML = `<p style="color:#888; font-size:0.8rem;">검색 중...</p>`;
+      const snap = await get(ref(db, "users"));
+      searchResultsList.innerHTML = "";
+
+      if (!snap.exists()) {
+        searchResultsList.innerHTML = `<p style="color:#666; font-size:0.8rem;">가입된 회원이 없습니다.</p>`;
+        return;
+      }
+
+      const allUsers = snap.val();
+      const matched = Object.values(allUsers).filter(u => {
+        if (!u.id || u.id === currentUser.id) return false;
+        const matchId = u.id.toLowerCase().includes(q);
+        const matchNick = (u.nickname || "").toLowerCase().includes(q);
+        return matchId || matchNick;
+      });
+
+      if (matched.length === 0) {
+        searchResultsList.innerHTML = `<p style="color:#666; font-size:0.8rem;">일치하는 회원을 찾지 못했습니다.</p>`;
+        return;
+      }
+
+      matched.forEach(user => {
+        const isFriend = currentUser.friends && currentUser.friends[user.id];
+        const div = document.createElement("div");
+        div.className = "friend-chip";
+        div.innerHTML = `
+          <div>
+            <strong>${escapeHtml(user.nickname)}</strong>
+            <span style="font-size:0.75rem; color:#888; margin-left:4px;">(${escapeHtml(user.id)})</span>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-secondary" style="padding:3px 8px; font-size:0.75rem;" data-prof-u="${user.id}">프로필</button>
+            ${isFriend 
+              ? '<span style="font-size:0.75rem; color:#2ed573; align-self:center;">이미 친구</span>' 
+              : `<button class="btn-primary" style="padding:3px 8px; font-size:0.75rem;" data-req-u="${user.id}">친구 신청</button>`}
+          </div>
+        `;
+
+        div.querySelector(`[data-prof-u="${user.id}"]`).addEventListener("click", () => {
+          loadProfile(user.id);
+        });
+
+        const reqBtn = div.querySelector(`[data-req-u="${user.id}"]`);
+        if (reqBtn) {
+          reqBtn.addEventListener("click", () => sendFriendRequest(user.id, user.nickname));
+        }
+
+        searchResultsList.appendChild(div);
+      });
+    });
+
+    // 친구 신청 전송
+    async function sendFriendRequest(targetUid, targetName) {
+      if (!currentUser) return;
+      // 이미 친구인지 검사
+      const fSnap = await get(ref(db, `users/${currentUser.id}/friends/${targetUid}`));
+      if (fSnap.exists()) return alert("이미 친구로 등록되어 있습니다.");
+
+      // 이미 내가 요청을 보냈는지 검사
+      const sentSnap = await get(ref(db, `users/${targetUid}/friend_requests/${currentUser.id}`));
+      if (sentSnap.exists()) return alert("이미 친구 신청을 보냈습니다. 상대방의 수락을 기다려주세요.");
+
+      // 상대방이 나에게 보낸 요청이 있는지 검사 (상대방 요청이 있으면 즉시 친구 수락 처리)
+      const revSnap = await get(ref(db, `users/${currentUser.id}/friend_requests/${targetUid}`));
+      if (revSnap.exists()) {
+        return acceptFriendRequest(targetUid, targetName);
+      }
+
+      // 요청 등록
+      await set(ref(db, `users/${targetUid}/friend_requests/${currentUser.id}`), {
+        id: currentUser.id,
+        name: currentUser.nickname,
+        timestamp: Date.now()
+      });
+
+      // 상대방에게 푸시 알림 발송
+      sendPushNotification(
+        [targetUid],
+        "새로운 친구 요청이 도착했습니다! 📬",
+        `[${currentUser.nickname}] 작가님이 친구 추가를 요청했습니다. 프로필 탭에서 확인해보세요.`
+      );
+
+      alert(`[${targetName}] 님께 친구 신청을 보냈습니다!`);
+      if (viewingProfileUid) loadProfile(viewingProfileUid);
+    }
+
+    // 친구 신청 취소
+    async function cancelFriendRequest(targetUid, targetName) {
+      await remove(ref(db, `users/${targetUid}/friend_requests/${currentUser.id}`));
+      alert(`[${targetName}] 님께 보낸 친구 신청을 취소했습니다.`);
+      if (viewingProfileUid) loadProfile(viewingProfileUid);
+    }
+
+    // 친구 요청 수락
+    async function acceptFriendRequest(targetUid, targetName) {
+      const now = Date.now();
+      const updates = {};
+
+      // 서로의 friends 노드에 상호 등록
+      updates[`users/${currentUser.id}/friends/${targetUid}`] = { id: targetUid, name: targetName, addedAt: now };
+      updates[`users/${targetUid}/friends/${currentUser.id}`] = { id: currentUser.id, name: currentUser.nickname, addedAt: now };
+
+      // 양방향 요청 목록에서 제거
+      updates[`users/${currentUser.id}/friend_requests/${targetUid}`] = null;
+      updates[`users/${targetUid}/friend_requests/${currentUser.id}`] = null;
+
+      await update(ref(db), updates);
+
+      // 신청했던 사람에게 수락 완료 푸시 알림 발송
+      sendPushNotification(
+        [targetUid],
+        "친구 요청이 수락되었습니다! 🎉",
+        `[${currentUser.nickname}] 작가님이 친구 요청을 수락했습니다. 이제 서로의 새 방 알림을 받습니다!`
+      );
+
+      alert(`[${targetName}] 님의 친구 요청을 수락했습니다!`);
+      loadProfile(currentUser.id);
+    }
+
+    // 친구 요청 거절
+    async function rejectFriendRequest(targetUid, targetName) {
+      await remove(ref(db, `users/${currentUser.id}/friend_requests/${targetUid}`));
+      alert(`[${targetName}] 님의 친구 요청을 거절했습니다.`);
+      loadProfile(currentUser.id);
+    }
+
+    // 타인 프로필 상단 친구 버튼 클릭 핸들러
     btnAddFriend.addEventListener("click", async () => {
       if (!currentUser || !viewingProfileUid) return;
       const targetSnap = await get(ref(db, `users/${viewingProfileUid}`));
       if (!targetSnap.exists()) return;
       const targetData = targetSnap.val();
 
-      const friendRef = ref(db, `users/${currentUser.id}/friends/${viewingProfileUid}`);
-      const snap = await get(friendRef);
+      const [friendSnap, sentSnap, receivedSnap] = await Promise.all([
+        get(ref(db, `users/${currentUser.id}/friends/${viewingProfileUid}`)),
+        get(ref(db, `users/${viewingProfileUid}/friend_requests/${currentUser.id}`)),
+        get(ref(db, `users/${currentUser.id}/friend_requests/${viewingProfileUid}`))
+      ]);
 
-      if (snap.exists()) {
-        await remove(friendRef);
-        alert(`[${targetData.nickname}] 님을 친구 목록에서 삭제했습니다.`);
+      if (friendSnap.exists()) {
+        // 친구 삭제
+        if (confirm(`[${targetData.nickname}] 작가를 친구 목록에서 삭제하시겠습니까?`)) {
+          const updates = {};
+          updates[`users/${currentUser.id}/friends/${viewingProfileUid}`] = null;
+          updates[`users/${viewingProfileUid}/friends/${currentUser.id}`] = null;
+          await update(ref(db), updates);
+          alert("친구 목록에서 삭제되었습니다.");
+          loadProfile(viewingProfileUid);
+        }
+      } else if (sentSnap.exists()) {
+        // 보낸 신청 취소
+        cancelFriendRequest(viewingProfileUid, targetData.nickname);
+      } else if (receivedSnap.exists()) {
+        // 받은 요청 수락
+        acceptFriendRequest(viewingProfileUid, targetData.nickname);
       } else {
-        await set(friendRef, {
-          id: viewingProfileUid,
-          name: targetData.nickname,
-          addedAt: Date.now()
-        });
-        alert(`[${targetData.nickname}] 님을 친구로 추가했습니다! 해당 작가가 방을 열면 푸시 알림을 받습니다.`);
+        // 신규 친구 신청
+        sendFriendRequest(viewingProfileUid, targetData.nickname);
       }
-      loadProfile(viewingProfileUid);
     });
 
+    // 받은 친구 요청 목록 실시간 렌더링
+    function renderFriendRequests() {
+      if (!currentUser) return;
+      onValue(ref(db, `users/${currentUser.id}/friend_requests`), (snap) => {
+        friendRequestsList.innerHTML = "";
+        const data = snap.val();
+        if (!data || Object.keys(data).length === 0) {
+          friendRequestsList.innerHTML = `<p style="color:#666; font-size:0.85rem;">받은 친구 요청이 없습니다.</p>`;
+          return;
+        }
+
+        Object.entries(data).forEach(([fUid, fData]) => {
+          const div = document.createElement("div");
+          div.className = "friend-chip";
+          div.style.borderColor = "#e67e22";
+          div.innerHTML = `
+            <div>
+              <strong style="color:#f39c12;">${escapeHtml(fData.name)}</strong>
+              <span style="font-size:0.75rem; color:#888; margin-left:4px;">(${escapeHtml(fUid)})</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-primary" style="padding:3px 8px; font-size:0.75rem;" data-acc-u="${fUid}">수락</button>
+              <button class="btn-danger" style="padding:3px 8px; font-size:0.75rem;" data-rej-u="${fUid}">거절</button>
+            </div>
+          `;
+
+          div.querySelector(`[data-acc-u="${fUid}"]`).addEventListener("click", () => {
+            acceptFriendRequest(fUid, fData.name);
+          });
+          div.querySelector(`[data-rej-u="${fUid}"]`).addEventListener("click", () => {
+            rejectFriendRequest(fUid, fData.name);
+          });
+
+          friendRequestsList.appendChild(div);
+        });
+      });
+    }
+
+    // 내 친구 목록 렌더링
     async function renderMyFriendsList() {
       if (!currentUser) return;
-      const snap = await get(ref(db, `users/${currentUser.id}/friends`));
-      myFriendsList.innerHTML = "";
-      if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
-        myFriendsList.innerHTML = `<p style="color:#666; font-size:0.85rem;">등록된 친구가 없습니다. 도서관이나 방에서 작가 프로필을 눌러 친구를 추가해보세요!</p>`;
-        return;
-      }
-      const friends = snap.val();
-      Object.entries(friends).forEach(([fUid, fData]) => {
-        const div = document.createElement("div");
-        div.className = "friend-chip";
-        div.innerHTML = `
-          <div>
-            <strong>${escapeHtml(fData.name)}</strong>
-            <span style="font-size:0.75rem; color:#888; margin-left:6px;">(${fUid})</span>
-          </div>
-          <div style="display:flex; gap:6px;">
-            <button class="btn-secondary" style="padding:2px 8px; font-size:0.7rem;" data-view-f="${fUid}">프로필</button>
-            <button class="btn-danger" style="padding:2px 8px; font-size:0.7rem;" data-del-f="${fUid}">삭제</button>
-          </div>
-        `;
-        div.querySelector(`[data-view-f="${fUid}"]`).addEventListener("click", () => {
-          loadProfile(fUid);
+      onValue(ref(db, `users/${currentUser.id}/friends`), (snap) => {
+        myFriendsList.innerHTML = "";
+        const friends = snap.val();
+        if (!friends || Object.keys(friends).length === 0) {
+          myFriendsList.innerHTML = `<p style="color:#666; font-size:0.85rem;">등록된 친구가 없습니다. 작가 검색이나 도서관에서 친구를 신청해보세요!</p>`;
+          return;
+        }
+
+        Object.entries(friends).forEach(([fUid, fData]) => {
+          const div = document.createElement("div");
+          div.className = "friend-chip";
+          div.innerHTML = `
+            <div>
+              <strong>${escapeHtml(fData.name)}</strong>
+              <span style="font-size:0.75rem; color:#888; margin-left:4px;">(${escapeHtml(fUid)})</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-secondary" style="padding:3px 8px; font-size:0.75rem;" data-view-f="${fUid}">프로필</button>
+              <button class="btn-danger" style="padding:3px 8px; font-size:0.75rem;" data-del-f="${fUid}">삭제</button>
+            </div>
+          `;
+
+          div.querySelector(`[data-view-f="${fUid}"]`).addEventListener("click", () => {
+            loadProfile(fUid);
+          });
+          div.querySelector(`[data-del-f="${fUid}"]`).addEventListener("click", async () => {
+            if (confirm(`[${fData.name}] 친구를 삭제하시겠습니까?`)) {
+              const updates = {};
+              updates[`users/${currentUser.id}/friends/${fUid}`] = null;
+              updates[`users/${fUid}/friends/${currentUser.id}`] = null;
+              await update(ref(db), updates);
+            }
+          });
+
+          myFriendsList.appendChild(div);
         });
-        div.querySelector(`[data-del-f="${fUid}"]`).addEventListener("click", async () => {
-          if (confirm(`[${fData.name}] 친구를 삭제하시겠습니까?`)) {
-            await remove(ref(db, `users/${currentUser.id}/friends/${fUid}`));
-            renderMyFriendsList();
-          }
-        });
-        myFriendsList.appendChild(div);
       });
     }
 
