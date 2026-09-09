@@ -2351,26 +2351,33 @@
       }
     }
 // 프로필 알림 버튼 상태 업데이트 헬퍼
-    async function updatePushSettingButtonState() {
-      if (!window.OneSignal || !btnTogglePushSetting) return;
-      try {
-        const isEnabled = await window.OneSignal.User.PushSubscription.optedIn;
-        if (isEnabled) {
-          btnTogglePushSetting.textContent = "알림 켜짐 (끄기)";
-          btnTogglePushSetting.className = "btn-secondary";
-          btnTogglePushSetting.style.background = "#2ed573";
-          btnTogglePushSetting.style.color = "#0c1b11";
-        } else {
+   // 프로필 알림 버튼 상태 업데이트 헬퍼 (OneSignalDeferred 큐 보장형)
+    function updatePushSettingButtonState() {
+      if (!btnTogglePushSetting) return;
+
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        try {
+          const isEnabled = OneSignal.User?.PushSubscription?.optedIn ?? false;
+          if (isEnabled) {
+            btnTogglePushSetting.textContent = "알림 켜짐 (끄기)";
+            btnTogglePushSetting.className = "btn-secondary";
+            btnTogglePushSetting.style.background = "#2ed573";
+            btnTogglePushSetting.style.color = "#0c1b11";
+          } else {
+            btnTogglePushSetting.textContent = "알림 켜기";
+            btnTogglePushSetting.className = "btn-primary";
+            btnTogglePushSetting.style.background = "";
+            btnTogglePushSetting.style.color = "";
+          }
+        } catch (err) {
           btnTogglePushSetting.textContent = "알림 켜기";
           btnTogglePushSetting.className = "btn-primary";
           btnTogglePushSetting.style.background = "";
           btnTogglePushSetting.style.color = "";
         }
-      } catch (e) {
-        btnTogglePushSetting.textContent = "알림 켜기";
-      }
+      });
     }
-
     // 프로필 설정에서 알림 On/Off 클릭 시
     if (btnTogglePushSetting) {
       btnTogglePushSetting.addEventListener("click", async () => {
