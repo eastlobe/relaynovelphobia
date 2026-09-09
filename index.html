@@ -362,7 +362,6 @@
       margin-bottom: 6px;
     }
 
-    /* 친구 목록 전용 카드 */
     .friend-chip {
       background: #1e1e24;
       border: 1px solid #323238;
@@ -632,7 +631,6 @@
         <button id="btn-save-profile" class="btn-primary" style="align-self:flex-start;">소개글 저장</button>
       </div>
 
-      <!-- 친구 관리 패널 (본인 프로필일 때만 표시) -->
       <div id="my-friends-panel" class="box-panel" style="display:none;">
         <h3 style="font-size:0.95rem; color:#fff; margin-bottom:10px;">내 친구 목록 👥</h3>
         <p style="font-size:0.75rem; color:#888; margin-bottom:10px;">친구가 새 방을 만들면 웹 푸시 알림이 발송됩니다.</p>
@@ -719,9 +717,11 @@
       getDatabase, ref, set, push, onValue, update, remove, onDisconnect, get 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
-    // ⚠️ OneSignal 무료 대시보드에서 발급받은 실제 키를 넣어주세요.
-    const ONESIGNAL_APP_ID = "YOUR_ONESIGNAL_APP_ID";
-    const ONESIGNAL_REST_API_KEY = "YOUR_ONESIGNAL_REST_API_KEY";
+    // 1. OneSignal 공식 공개 App ID 반영
+    const ONESIGNAL_APP_ID = "1f8e25e9-5dbc-4bd5-b63c-82c43571ced2";
+
+    // 2. Cloudflare Worker 중계기 URL (1단계에서 생성한 본인 워커 주소로 변경하세요)
+    const PUSH_PROXY_URL = "https://summer-leaf-7fe3.dyeric031001.workers.dev/";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBsvhq6Y1KzvUJ9gUlF6_QEgYoj-FzuZMU",
@@ -759,7 +759,6 @@
     let isIdVerified = false;
     let viewingProfileUid = null;
 
-    // DOM 참조
     const navTabs = {
       lobby: document.getElementById("tab-btn-lobby"),
       board: document.getElementById("tab-btn-board"),
@@ -864,18 +863,19 @@
     const btnModalExit = document.getElementById("btn-modal-exit");
     const panicOverlay = document.getElementById("panic-overlay");
 
-    // 알림 유도 팝업 DOM
     const modalPushPrompt = document.getElementById("modal-push-prompt");
     const btnEnablePush = document.getElementById("btn-enable-push");
     const btnDismissPush = document.getElementById("btn-dismiss-push");
     const chkNeverShowPush = document.getElementById("chk-never-show-push");
 
-    // 1. OneSignal 초기화 및 로그인 유저 external_id 바인딩
+    // OneSignal 초기화 및 서비스 워커 연동
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal) {
       await OneSignal.init({
         appId: ONESIGNAL_APP_ID,
-        notifyButton: { enable: false }
+        notifyButton: { enable: false },
+        serviceWorkerPath: "OneSignalSDKWorker.js",
+        serviceWorkerParam: { scope: "/relaynovelphobia/" }
       });
 
       if (currentUser) {
@@ -885,7 +885,6 @@
       checkAndShowPushPrompt(OneSignal);
     });
 
-    // 알림 미설정 유저 팝업 트리거
     async function checkAndShowPushPrompt(OneSignal) {
       const isNeverShow = localStorage.getItem("rnp_never_show_push") === "true";
       if (isNeverShow) return;
@@ -915,42 +914,30 @@
       modalPushPrompt.style.display = "none";
     });
 
-    // 2. 친구에게만 발송되는 OneSignal REST API 푸시 함수
+    // Cloudflare 중계 서버를 통한 안전한 친구 푸시 발송 (비밀키 노출 0%)
     async function sendPushToFriends(creatorUid, creatorName, roomTitle) {
       try {
-        // 방 생성자의 친구 목록(나를 친구로 등록한 사람 or 내 친구) 조회
         const snap = await get(ref(db, `users/${creatorUid}/friends`));
         if (!snap.exists()) return;
 
         const friendIds = Object.keys(snap.val() || {});
         if (friendIds.length === 0) return;
 
-        // OneSignal REST API 호출 (외부 아이디 기반 타겟 발송)
-        await fetch("https://onesignal.com/api/v1/notifications", {
+        // Cloudflare 중계 Worker로 POST 요청
+        await fetch(PUSH_PROXY_URL, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-            "Authorization": `Basic ${ONESIGNAL_REST_API_KEY}`
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            app_id: ONESIGNAL_APP_ID,
-            include_aliases: {
-              external_id: friendIds
-            },
-            target_channel: "push",
-            headings: { en: "릴레이소설공포증 😱", ko: "친구가 방을 열었습니다!" },
-            contents: {
-              en: `${creatorName} has created a new novel room: [${roomTitle}]!`,
-              ko: `[${creatorName}] 작가님이 새 소설 방 [${roomTitle}]을(를) 개설했습니다! 지금 바로 집필에 합류해보세요.`
-            }
+            friendIds: friendIds,
+            creatorName: creatorName,
+            roomTitle: roomTitle
           })
         });
       } catch (err) {
-        console.warn("OneSignal 푸시 발송 실패:", err);
+        console.warn("푸시 중계 요청 실패:", err);
       }
     }
 
-    // 3. 네비게이션 탭
     function switchTab(tabName) {
       if (currentRoomId && tabName !== "room") {
         if (!confirm("진행 중인 방에서 나가시겠습니까?")) return;
@@ -972,7 +959,6 @@
     navTabs.profile.addEventListener("click", () => switchTab("profile"));
     document.getElementById("nav-brand").addEventListener("click", () => switchTab("lobby"));
 
-    // 4. 인증 관리
     function updateAuthUI() {
       if (currentUser) {
         const isAdmin = (currentUser.id === ADMIN_UID);
@@ -1082,7 +1068,6 @@
       return true;
     }
 
-    // 5. 방 생성 & 친구 푸시 발송 연동
     createRoomMode.addEventListener("change", () => {
       createTimedRow.style.display = (createRoomMode.value === "timed") ? "flex" : "none";
     });
@@ -1136,7 +1121,7 @@
 
       set(newRef, newRoom).then(() => {
         createRoomPassword.value = "";
-        // 친구들에게만 백그라운드 웹 푸시 발송 트리거
+        // Cloudflare 중계를 거쳐 친구들에게 푸시 발송
         sendPushToFriends(currentUser.id, currentUser.nickname, title);
         joinRoom(rId, password);
       });
@@ -1982,7 +1967,6 @@
       });
     }
 
-    // 6. 작가 프로필 & 친구 추가/관리
     async function loadProfile(targetUid) {
       const uid = targetUid || (currentUser ? currentUser.id : null);
       viewingProfileUid = uid;
@@ -2008,7 +1992,6 @@
       btnSaveProfile.style.display = isMyProfile ? "inline-block" : "none";
       profBioInput.disabled = !isMyProfile;
 
-      // 타인 프로필일 때 친구 추가 버튼 활성화
       if (!isMyProfile && currentUser) {
         const myFriendSnap = await get(ref(db, `users/${currentUser.id}/friends/${uid}`));
         btnAddFriend.style.display = "inline-block";
@@ -2023,7 +2006,6 @@
         btnAddFriend.style.display = "none";
       }
 
-      // 본인 프로필일 때 친구 목록 패널 렌더링
       if (isMyProfile) {
         myFriendsPanel.style.display = "block";
         renderMyFriendsList();
@@ -2053,7 +2035,6 @@
       }
     }
 
-    // 친구 추가/삭제 토글
     btnAddFriend.addEventListener("click", async () => {
       if (!currentUser || !viewingProfileUid) return;
       const targetSnap = await get(ref(db, `users/${viewingProfileUid}`));
@@ -2077,7 +2058,6 @@
       loadProfile(viewingProfileUid);
     });
 
-    // 내 친구 목록 렌더링
     async function renderMyFriendsList() {
       if (!currentUser) return;
       const snap = await get(ref(db, `users/${currentUser.id}/friends`));
