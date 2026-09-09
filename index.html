@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>릴레이소설공포증 😱</title>
 
-  <!-- iOS 웹앱(PWA) 지원 필수 메타 태그 -->
+  <!-- iOS 웹앱(PWA) 지원 메타 태그 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="소설공포증">
@@ -279,25 +279,11 @@
       z-index: 40;
     }
     @keyframes floatMongle {
-      0% {
-        opacity: 0;
-        transform: translateY(0) scale(0.4) rotate(0deg);
-      }
-      20% {
-        opacity: 1;
-        transform: translateY(-40px) scale(1.2) rotate(-8deg);
-      }
-      50% {
-        transform: translateY(-110px) scale(1) rotate(8deg);
-      }
-      80% {
-        opacity: 0.9;
-        transform: translateY(-180px) scale(0.95) rotate(-4deg);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-240px) scale(0.7) rotate(0deg);
-      }
+      0% { opacity: 0; transform: translateY(0) scale(0.4) rotate(0deg); }
+      20% { opacity: 1; transform: translateY(-40px) scale(1.2) rotate(-8deg); }
+      50% { transform: translateY(-110px) scale(1) rotate(8deg); }
+      80% { opacity: 0.9; transform: translateY(-180px) scale(0.95) rotate(-4deg); }
+      100% { opacity: 0; transform: translateY(-240px) scale(0.7) rotate(0deg); }
     }
 
     #bottom-dock {
@@ -765,38 +751,20 @@
       </div>
     </div>
 
-    <!-- [신규] 버전 업데이트 적용 및 푸시 자동 등록 안내 모달 -->
-    <div id="modal-update-notice" class="modal-overlay" style="z-index: 100;">
-      <div class="modal-content" style="max-width: 480px;">
-        <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid #2e2e36; padding-bottom:10px;">
-          <span style="font-size:1.5rem;">🎉</span>
-          <div>
-            <h2 id="update-modal-version-title" style="color:#2ed573; font-size:1.15rem;">릴레이소설공포증 업데이트</h2>
-            <div style="font-size:0.75rem; color:#888;">새로운 기능과 시스템 최적화 패치가 진행되었습니다.</div>
-          </div>
-        </div>
-
-        <div style="background:#141418; border:1px solid #2e2e36; padding:12px; border-radius:8px; font-size:0.85rem; line-height:1.7; color:#ddd; max-height:220px; overflow-y:auto;">
-          <strong style="color:#fff;">[패치 노트 주요 사항]</strong><br>
-          • <strong>친구 추가 및 신청/수락 시스템</strong> 도입<br>
-          • <strong>친구 방 개설 & 친구 소식 실시간 알림</strong> 기능 추가<br>
-          • <strong>도서관 및 게시판 전용 댓글</strong> 소통 공간 추가<br>
-          • <strong>모바일 전용 화면 최적화</strong> 및 실시간 몽글몽글 리액션 연출
-        </div>
-
-        <!-- iOS 사파리 일반 탭 접속 시에만 동적으로 켜지는 가이드 -->
-        <div id="ios-update-guide-box" style="display:none; background:#24242b; border:1px solid #e67e22; padding:10px; border-radius:6px; font-size:0.8rem; color:#eee; line-height:1.7;">
-          <strong style="color:#f39c12;">📲 아이폰(iOS) 유저 필수 안내:</strong><br>
-          아이폰 정책상 웹 알림을 수신하려면 사파리 하단 <strong>[공유 버튼(↑)]</strong>을 눌러 <strong>[홈 화면에 추가]</strong>한 후 접속하셔야 원활한 알림 사용이 가능합니다!
-        </div>
-
-        <p style="font-size:0.75rem; color:#aaa; line-height:1.5;">
-          아래 버튼을 누르면 브라우저의 최신 캐시와 실시간 알림 연동이 즉시 적용됩니다.
+    <!-- iOS 홈 화면 추가 전용 가이드 모달 -->
+    <div id="modal-ios-pwa-prompt" class="modal-overlay">
+      <div class="modal-content" style="max-width:420px; text-align:center;">
+        <div style="font-size:3rem; margin-bottom:8px;">📲</div>
+        <h2 style="color:#fff; font-size:1.15rem;">아이폰 알림 받기 설정 안내</h2>
+        <p style="font-size:0.85rem; color:#aaa; line-height:1.6; margin-top:8px;">
+          아이폰(iOS) 정책상 웹 푸시 알림을 받으려면 먼저 <strong>홈 화면에 앱을 추가</strong>해야 합니다.
         </p>
-
-        <button id="btn-apply-update" class="btn-primary" style="width:100%; padding:10px; font-size:0.95rem; font-weight:bold;">
-          업데이트 사항 적용 및 시작하기
-        </button>
+        <div style="background:#24242b; border:1px solid #333; padding:12px; border-radius:8px; text-align:left; font-size:0.8rem; color:#eee; margin-top:10px; line-height:1.8;">
+          1. 사파리 하단의 <strong>공유 버튼 (네모에 화살표 ↑)</strong> 클릭<br>
+          2. 메뉴에서 <strong>[홈 화면에 추가]</strong> 선택<br>
+          3. 홈 화면에 생긴 <strong>앱 아이콘으로 다시 접속</strong>하면 알림 설정이 가능합니다.
+        </div>
+        <button id="btn-dismiss-ios-pwa" class="btn-primary" style="width:100%; margin-top:14px;">확인했습니다</button>
       </div>
     </div>
 
@@ -807,11 +775,6 @@
     import { 
       getDatabase, ref, set, push, onValue, update, remove, onDisconnect, get 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
-
-    // ───────────────────────────────────────────────
-    // 프로젝트 버전 관리 (새 패치 배포 시 이 문자열을 변경하면 유저에게 팝업 노출)
-    // ───────────────────────────────────────────────
-    const CURRENT_APP_VERSION = "v1.2";
 
     const ONESIGNAL_APP_ID = "1f8e25e9-5dbc-4bd5-b63c-82c43571ced2";
     const PUSH_PROXY_URL = "https://summer-leaf-7fe3.dyeric031001.workers.dev";
@@ -973,11 +936,8 @@
     const btnModalExit = document.getElementById("btn-modal-exit");
     const panicOverlay = document.getElementById("panic-overlay");
 
-    // 신규 업데이트 안내 모달 요소
-    const modalUpdateNotice = document.getElementById("modal-update-notice");
-    const updateModalVersionTitle = document.getElementById("update-modal-version-title");
-    const iosUpdateGuideBox = document.getElementById("ios-update-guide-box");
-    const btnApplyUpdate = document.getElementById("btn-apply-update");
+    const modalIosPwaPrompt = document.getElementById("modal-ios-pwa-prompt");
+    const btnDismissIosPwa = document.getElementById("btn-dismiss-ios-pwa");
 
     function checkDeviceEnv() {
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -985,74 +945,31 @@
       return { isIOS, isStandalone };
     }
 
-    // OneSignal SDK 초기화
+    // OneSignal SDK 초기화 (안전 연동)
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal) {
-      await OneSignal.init({
-        appId: ONESIGNAL_APP_ID,
-        notifyButton: { enable: false },
-        serviceWorkerPath: "OneSignalSDKWorker.js",
-        serviceWorkerParam: { scope: "/relaynovelphobia/" }
-      });
+      try {
+        await OneSignal.init({
+          appId: ONESIGNAL_APP_ID,
+          notifyButton: { enable: false },
+          serviceWorkerPath: "OneSignalSDKWorker.js",
+          serviceWorkerParam: { scope: "/relaynovelphobia/" }
+        });
 
-      if (currentUser) {
-        await OneSignal.login(currentUser.id);
+        if (currentUser) {
+          await OneSignal.login(currentUser.id);
+        }
+      } catch (e) {
+        console.warn("OneSignal 초기화 스킵:", e);
       }
     });
 
-    // ───────────────────────────────────────────────
-    // 업데이트 버전 체크 및 안내 모달 제어
-    // ───────────────────────────────────────────────
-    function checkAppVersionOnLoad() {
-      const lastSeenVersion = localStorage.getItem("rnp_last_seen_version");
-      if (lastSeenVersion !== CURRENT_APP_VERSION) {
-        const { isIOS, isStandalone } = checkDeviceEnv();
-        updateModalVersionTitle.textContent = `릴레이소설공포증 ${CURRENT_APP_VERSION} 업데이트`;
-        
-        // 아이폰 사파리 일반 탭 접속 시 설치 가이드 노출
-        if (isIOS && !isStandalone) {
-          iosUpdateGuideBox.style.display = "block";
-        } else {
-          iosUpdateGuideBox.style.display = "none";
-        }
-
-        modalUpdateNotice.style.display = "flex";
-      }
+    if (btnDismissIosPwa) {
+      btnDismissIosPwa.addEventListener("click", () => {
+        modalIosPwaPrompt.style.display = "none";
+      });
     }
 
-    btnApplyUpdate.addEventListener("click", async () => {
-      btnApplyUpdate.disabled = true;
-      btnApplyUpdate.textContent = "적용 중...";
-
-      const { isIOS, isStandalone } = checkDeviceEnv();
-
-      // OneSignal 푸시 권한 등록 요청 (User Gesture 기반이므로 100% 정상 작동)
-      if (window.OneSignal) {
-        try {
-          if (!isIOS || isStandalone) {
-            await window.OneSignal.User.PushSubscription.optIn();
-            if (currentUser) {
-              await window.OneSignal.login(currentUser.id);
-            }
-          }
-        } catch (e) {
-          console.warn("알림 등록 진행 중 무시된 오류:", e);
-        }
-      }
-
-      // 현재 버전 저장 및 모달 닫기
-      localStorage.setItem("rnp_last_seen_version", CURRENT_APP_VERSION);
-      modalUpdateNotice.style.display = "none";
-      btnApplyUpdate.disabled = false;
-      btnApplyUpdate.textContent = "업데이트 사항 적용 및 시작하기";
-      updatePushSettingButtonState();
-    });
-
-    checkAppVersionOnLoad();
-
-    // ───────────────────────────────────────────────
-    // 푸시 발송 프록시 연동
-    // ───────────────────────────────────────────────
     async function sendPushNotification(targetIds, title, message) {
       if (!targetIds || targetIds.length === 0) return;
       try {
@@ -2228,7 +2145,7 @@
     });
 
     // ───────────────────────────────────────────────
-    // 작가 프로필 & 알림 설정 제어
+    // 작가 프로필 & 알림 설정 제어 (안전 타임아웃 보장)
     // ───────────────────────────────────────────────
     async function loadProfile(targetUid) {
       const uid = targetUid || (currentUser ? currentUser.id : null);
@@ -2328,7 +2245,6 @@
 
       const { isIOS, isStandalone } = checkDeviceEnv();
 
-      // iOS 일반 사파리 탭일 경우
       if (isIOS && !isStandalone) {
         profilePushDesc.textContent = "아이폰 알림을 받으려면 홈 화면에 앱을 추가해야 합니다.";
         btnTogglePushSetting.textContent = "홈 화면 추가 (안내)";
@@ -2357,10 +2273,7 @@
       if (window.OneSignal?.User?.PushSubscription) {
         applyUI(Boolean(window.OneSignal.User.PushSubscription.optedIn));
       } else {
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        window.OneSignalDeferred.push(function(OneSignal) {
-          applyUI(Boolean(OneSignal.User?.PushSubscription?.optedIn));
-        });
+        applyUI(false);
       }
     }
 
@@ -2369,9 +2282,7 @@
         const { isIOS, isStandalone } = checkDeviceEnv();
 
         if (isIOS && !isStandalone) {
-          // iOS 설치 가이드 오픈
-          iosUpdateGuideBox.style.display = "block";
-          modalUpdateNotice.style.display = "flex";
+          modalIosPwaPrompt.style.display = "flex";
           return;
         }
 
@@ -2382,10 +2293,16 @@
           try {
             const currentlyOptedIn = window.OneSignal.User.PushSubscription.optedIn;
             if (currentlyOptedIn) {
-              await window.OneSignal.User.PushSubscription.optOut();
+              await Promise.race([
+                window.OneSignal.User.PushSubscription.optOut(),
+                new Promise(res => setTimeout(res, 800))
+              ]);
               alert("알림이 꺼졌습니다.");
             } else {
-              await window.OneSignal.User.PushSubscription.optIn();
+              await Promise.race([
+                window.OneSignal.User.PushSubscription.optIn(),
+                new Promise(res => setTimeout(res, 800))
+              ]);
               if (currentUser) {
                 await window.OneSignal.login(currentUser.id);
               }
@@ -2397,7 +2314,7 @@
             setTimeout(() => {
               btnTogglePushSetting.disabled = false;
               updatePushSettingButtonState();
-            }, 500);
+            }, 300);
           }
         }
       });
